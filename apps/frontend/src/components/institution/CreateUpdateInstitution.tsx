@@ -120,6 +120,7 @@ const CreateUpdateInstitution = ({
             label="Name"
             type="text"
             component={TextField}
+            inputProps={{ maxLength: '200' }}
             data-cy="name"
             fullWidth
             disabled={isExecutingCall}

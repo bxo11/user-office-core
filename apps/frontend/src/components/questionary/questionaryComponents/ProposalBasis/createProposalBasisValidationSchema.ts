@@ -6,7 +6,7 @@ import { UserRole } from 'generated/sdk';
 
 export const createProposalBasisValidationSchema: QuestionaryComponentDefinition['createYupValidationSchema'] =
   () => {
-    const MAX_TITLE_LEN = 175;
+    const MAX_TITLE_LEN = 300;
     const MAX_ABSTRACT_LEN = 1500;
     const currentUser = getCurrentUser();
     const isUserOfficer =

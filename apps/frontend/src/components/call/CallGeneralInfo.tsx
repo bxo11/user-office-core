@@ -221,7 +221,7 @@ const CallGeneralInfo = ({
         id="short-code-input"
         type="text"
         component={TextField}
-        inputProps={{ maxLength: '20' }}
+        inputProps={{ maxLength: '30' }}
         fullWidth
         required
         data-cy="short-code"
