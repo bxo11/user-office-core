@@ -167,6 +167,19 @@ const ProposalsMenuListItem = () => {
   );
 };
 
+const SafetyManagementMenuListItem = () => {
+  return (
+    <Tooltip title="Safety management">
+      <ListItem component={NavLink} to="/SafetyManagement" button>
+        <ListItemIcon>
+          <BoxIcon />
+        </ListItemIcon>
+        <ListItemText primary="Safety management" />
+      </ListItem>
+    </Tooltip>
+  );
+};
+
 const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
   const proposalDisabled = callsData.length === 0;
   const context = useContext(FeatureContext);
@@ -243,6 +256,7 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
           <ListItemText primary="Proposals" />
         </ListItem>
       </Tooltip>
+      <SafetyManagementMenuListItem />
       {isSchedulerEnabled && (
         <Tooltip title="Experiments">
           <ListItem

@@ -29,6 +29,7 @@ import MenuItems from './menu/MenuItems';
 import InformationModal from './pages/InformationModal';
 import OverviewPage from './pages/OverviewPage';
 import ProposalPage from './proposal/ProposalPage';
+import SafetyManagementPage from './safetyManagement/SafetyManagementPage';
 import TitledRoute from './TitledRoute';
 
 const CallPage = lazy(() => import('./call/CallPage'));
@@ -373,6 +374,12 @@ const Dashboard = () => {
               title="Proposal"
               path="/Proposals"
               component={ProposalPage}
+            />
+            <TitledRoute
+              setHeader={setHeader}
+              title="Safety management"
+              path="/SafetyManagement"
+              component={SafetyManagementPage}
             />
             {isUserOfficer && (
               <TitledRoute

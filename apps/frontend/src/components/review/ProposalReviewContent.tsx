@@ -12,6 +12,7 @@ import GeneralInformation from 'components/proposal/GeneralInformation';
 import ProposalAdmin, {
   AdministrationFormData,
 } from 'components/proposal/ProposalAdmin';
+import SafetyManagement from 'components/safetyManagement/SafetyManagement';
 import { UserContext } from 'context/UserContextProvider';
 import {
   CoreTechnicalReviewFragment,
@@ -37,6 +38,7 @@ export enum PROPOSAL_MODAL_TAB_NAMES {
   ADMIN = 'Admin',
   GRADE = 'Grade',
   LOGS = 'Logs',
+  SAFETY_MANAGEMENT = 'Safety management',
 }
 
 type ProposalReviewContentProps = {
@@ -164,6 +166,12 @@ const ProposalReviewContent = ({
     />
   );
 
+  const SafetyManagementTab = isUserOfficer && (
+    <>
+      <SafetyManagement proposalSafetyComments={[]} />
+    </>
+  );
+
   const tabsContent = tabNames.map((tab, index) => {
     switch (tab) {
       case 'Proposal information':
@@ -178,6 +186,8 @@ const ProposalReviewContent = ({
         return <Fragment key={index}>{EventLogsTab}</Fragment>;
       case 'Grade':
         return <Fragment key={index}>{GradeTab}</Fragment>;
+      case 'Safety management':
+        return <Fragment key={index}>{SafetyManagementTab}</Fragment>;
       default:
         return null;
     }

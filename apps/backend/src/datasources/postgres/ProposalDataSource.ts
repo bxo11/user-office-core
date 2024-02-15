@@ -382,6 +382,13 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           );
         }
 
+        if (filter?.proposalFinalStatusId) {
+          query.where(
+            'proposal_table_view.final_status',
+            filter?.proposalFinalStatusId
+          );
+        }
+
         if (filter?.shortCodes) {
           const filteredAndPreparedShortCodes = filter?.shortCodes
             .filter((shortCode) => shortCode)
@@ -492,6 +499,10 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           query.where('proposals.status_id', filter?.proposalStatusId);
         }
 
+        if (filter?.proposalFinalStatusId) {
+          query.where('proposals.final_status', filter?.proposalFinalStatusId);
+        }
+
         if (filter?.shortCodes) {
           const filteredAndPreparedShortCodes = filter?.shortCodes
             .filter((shortCode) => shortCode)
@@ -585,6 +596,13 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           query.where(
             'proposal_table_view.proposal_status_id',
             filter?.proposalStatusId
+          );
+        }
+
+        if (filter?.proposalFinalStatusId) {
+          query.where(
+            'proposal_table_view.final_status',
+            filter?.proposalFinalStatusId
           );
         }
 
