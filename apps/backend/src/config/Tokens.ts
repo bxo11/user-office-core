@@ -36,6 +36,7 @@ export const Tokens = {
   VisitDataSource: Symbol('VisitDataSource'),
   PredefinedMessageDataSource: Symbol('PredefinedMessageDataSource'),
   InternalReviewDataSource: Symbol('InternalReviewDataSource'),
+  TagDataSource: Symbol('TagDataSource'),
   FapDataColumns: Symbol('FapDataColumns'),
   FapDataRow: Symbol('FapDataRow'),
   PopulateRow: Symbol('PopulateRow'),

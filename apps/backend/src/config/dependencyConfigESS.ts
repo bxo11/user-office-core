@@ -12,6 +12,7 @@ import PostgresGenericTemplateDataSource from '../datasources/postgres/GenericTe
 import PostgresInstrumentDataSource from '../datasources/postgres/InstrumentDataSource';
 import PostgresInternalReviewDataSource from '../datasources/postgres/InternalReviewDataSource';
 import PostgresPdfTemplateDataSource from '../datasources/postgres/PdfTemplateDataSource';
+import TagDataSource from '../datasources/postgres/PostgresTagDataSource';
 import PostgresPredefinedMessageDataSource from '../datasources/postgres/PredefinedMessageDataSource';
 import PostgresProposalDataSource from '../datasources/postgres/ProposalDataSource';
 import PostgresProposalEsiDataSource from '../datasources/postgres/ProposalEsiDataSource';
@@ -75,6 +76,7 @@ mapClass(
   Tokens.PredefinedMessageDataSource,
   PostgresPredefinedMessageDataSource
 );
+mapClass(Tokens.TagDataSource, TagDataSource);
 
 mapClass(Tokens.UserAuthorization, OAuthAuthorization);
 

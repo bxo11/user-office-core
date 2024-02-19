@@ -29,6 +29,7 @@ import { ProposalStatus } from './ProposalStatus';
 import { Questionary } from './Questionary';
 import { Review } from './Review';
 import { Sample } from './Sample';
+import { Tag } from './Tag';
 import { TechnicalReview } from './TechnicalReview';
 import { Visit } from './Visit';
 
@@ -243,6 +244,7 @@ export class ProposalResolver {
       proposalPk: proposal.primaryKey,
     });
   }
+
   @FieldResolver(() => ProposalBookingCore, { nullable: true })
   proposalBookingCore(
     @Root() proposal: Proposal,
@@ -254,6 +256,14 @@ export class ProposalResolver {
       proposalPk: proposal.primaryKey,
       filter,
     });
+  }
+
+  @FieldResolver(() => [Tag], { nullable: true })
+  async tags(
+    @Root() proposal: Proposal,
+    @Ctx() ctx: ResolverContext
+  ): Promise<Tag[] | null> {
+    return ctx.queries.tag.getProposalTags(ctx.user, proposal.primaryKey);
   }
 }
 

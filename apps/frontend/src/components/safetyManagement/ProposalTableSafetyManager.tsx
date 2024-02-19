@@ -1,8 +1,6 @@
 import { Action, Column, MTableToolbar } from '@material-table/core';
 import Delete from '@mui/icons-material/Delete';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
 import Email from '@mui/icons-material/Email';
-import FileCopy from '@mui/icons-material/FileCopy';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import GroupWork from '@mui/icons-material/GroupWork';
@@ -27,6 +25,7 @@ import ListStatusIcon from 'components/common/icons/ListStatusIcon';
 import ScienceIcon from 'components/common/icons/ScienceIcon';
 import AssignProposalsToFap from 'components/fap/Proposals/AssignProposalsToFap';
 import AssignProposalsToInstrument from 'components/instrument/AssignProposalsToInstrument';
+import ProposalAttachmentDownload from 'components/proposal/ProposalAttachmentDownload';
 import ProposalReviewContent, {
   PROPOSAL_MODAL_TAB_NAMES,
 } from 'components/review/ProposalReviewContent';
@@ -64,7 +63,6 @@ import withConfirm, { WithConfirmType } from 'utils/withConfirm';
 // import ChangeProposalStatus from './ChangeProposalStatus';
 // import ProposalAttachmentDownload from './ProposalAttachmentDownload';
 import { ProposalUrlQueryParamsType } from './SafetyManagementPage';
-import ProposalAttachmentDownload from 'components/proposal/ProposalAttachmentDownload';
 // import TableActionsDropdownMenu from './TableActionsDropdownMenu';
 
 type ProposalTableSafetyManagerProps = {

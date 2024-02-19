@@ -37,6 +37,7 @@ import { SampleExperimentSafetyInput } from '../../models/SampleExperimentSafety
 import { ScheduledEventCore } from '../../models/ScheduledEventCore';
 import { Settings, SettingsId } from '../../models/Settings';
 import { Shipment, ShipmentStatus } from '../../models/Shipment';
+import { Tag } from '../../models/Tag';
 import { TechnicalReview } from '../../models/TechnicalReview';
 import {
   DataType,
@@ -697,6 +698,12 @@ export interface ProposalWorkflowConnectionHasActionsRecord {
   readonly config: string;
 }
 
+export interface TagRecord {
+  readonly tag_id: number;
+  readonly tag: string;
+  readonly category: string;
+}
+
 export const createTopicObject = (record: TopicRecord) => {
   return new Topic(
     record.topic_id,
@@ -1268,3 +1275,7 @@ export const createRedeemCodeObject = (invite: RedeemCodeRecord) =>
     invite.claimed_by,
     invite.claimed_at
   );
+
+export const createTagObject = (tag: TagRecord) => {
+  return new Tag(tag.tag_id, tag.tag, tag.category);
+};

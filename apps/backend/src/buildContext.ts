@@ -22,6 +22,7 @@ import ReviewMutations from './mutations/ReviewMutations';
 import SampleEsiMutations from './mutations/SampleEsiMutations';
 import SampleMutations from './mutations/SampleMutations';
 import ShipmentMutations from './mutations/ShipmentMutations';
+import TagMutations from './mutations/TagMutations';
 import TemplateMutations from './mutations/TemplateMutations';
 import UnitMutations from './mutations/UnitMutations';
 import UserMutations from './mutations/UserMutations';
@@ -47,6 +48,7 @@ import SampleQueries from './queries/SampleQueries';
 import ScheduledEventQueries from './queries/ScheduledEventQueries';
 import ShipmentQueries from './queries/ShipmentQueries';
 import SystemQueries from './queries/SystemQueries';
+import TagQueries from './queries/TagQueries';
 import TemplateQueries from './queries/TemplateQueries';
 import UnitQueries from './queries/UnitQueries';
 import UserQueries from './queries/UserQueries';
@@ -79,6 +81,7 @@ const context: BasicResolverContext = {
     visit: container.resolve(VisitQueries),
     predefinedMessage: container.resolve(PredefinedMessageQueries),
     internalReview: container.resolve(InternalReviewQueries),
+    tag: container.resolve(TagQueries),
   },
   mutations: {
     admin: container.resolve(AdminMutations),
@@ -104,6 +107,7 @@ const context: BasicResolverContext = {
     visit: container.resolve(VisitMutations),
     predefinedMessage: container.resolve(PredefinedMessageMutations),
     internalReview: container.resolve(InternalReviewMutations),
+    tag: container.resolve(TagMutations),
   },
   clients: {
     scheduler: async () => {

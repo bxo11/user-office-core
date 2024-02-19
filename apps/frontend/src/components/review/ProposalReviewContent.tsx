@@ -167,9 +167,10 @@ const ProposalReviewContent = ({
   );
 
   const SafetyManagementTab = isUserOfficer && (
-    <>
-      <SafetyManagement proposalSafetyComments={[]} />
-    </>
+    <SafetyManagement
+      proposalPk={proposalData.primaryKey}
+      proposalTags={proposalData.tags || []}
+    />
   );
 
   const tabsContent = tabNames.map((tab, index) => {

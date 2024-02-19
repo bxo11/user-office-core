@@ -5,7 +5,7 @@ BEGIN
     BEGIN
 
     CREATE TABLE tags (
-            tag_id serial PRIMARY KEY
+            tag_id serial PRIMARY KEY,
             tag varchar(30) NOT NULL, 
             category varchar(30) NOT NULL
             );
@@ -18,7 +18,7 @@ BEGIN
 
     CREATE TABLE safety_management (
       proposal_pk serial PRIMARY KEY REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
-      safety_level INTEGER NOT NULL DEFAULT 0,
+      safety_level INTEGER NOT NULL DEFAULT 0
     );
 
       CREATE TABLE safety_management_comments (

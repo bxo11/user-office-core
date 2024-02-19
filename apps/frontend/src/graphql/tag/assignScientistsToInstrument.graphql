@@ -1,0 +1,3 @@
+mutation assignTagsToProposal($proposalPk: Int!, $tagIds: [Int!]!) {
+  assignTagsToProposal(proposalPk: $proposalPk, tagIds: $tagIds)
+}
