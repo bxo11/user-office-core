@@ -50,30 +50,34 @@ const SafetyManagement = ({
       <Formik
         initialValues={initialValues}
         onSubmit={async (values): Promise<void> => {
-          const safetyManagementValues = {
-            proposalPk: proposalPk,
-            propsalTags: values.proposalTags,
-          };
-          // const initialTagIds = data.proposalTags.map((tag) => tag.id);
+          // const initialTagIds = proposalTags.map((tag) => tag.id);
 
-          // const tagsToAssing = values.proposalTags
+          // const tagIdsToAssing = values.proposalTags
           //   .filter((tagId) => !initialTagIds.includes(tagId))
-          //   .map((tagId) => ({
-          //     tagId,
-          //   }));
+          //   .map((tagId) => tagId);
 
-          // const tagsToRemove = data.proposalTags
+          // const tagIdsToRemove = proposalTags
           //   .filter((tag) => !values.proposalTags.includes(tag.id))
-          //   .map((tag) => ({
-          //     tagId: tag.id,
-          //   }));
+          //   .map((tag) => tag.id);
 
-          // console.log(tagsToAssing);
-          // console.log(tagsToRemove);
+          //TODO: replace it with a single call e.g. api().updateProposalTags
+          // await Promise.all([
+          //   api().assignTagsToProposal({
+          //     proposalPk,
+          //     tagIds: tagIdsToAssing,
+          //   }),
+          //   api().removeTagsFromProposal({
+          //     proposalPk,
+          //     tagIds: tagIdsToRemove,
+          //   }),
+          // ]).then(() => {});
 
           await api({
             toastSuccessMessage: 'Saved!',
-          }).administrationProposal(safetyManagementValues);
+          }).updateProposalTags({
+            proposalPk,
+            tagIds: values.proposalTags,
+          });
         }}
       >
         {({}) => (

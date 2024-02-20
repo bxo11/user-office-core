@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import { injectable } from 'tsyringe';
 
 import { Tag } from '../../models/Tag';
@@ -30,6 +31,38 @@ export default class PostgresTagDataSource implements TagDataSource {
 
         return result;
       });
+  }
+
+  async updateProposalTags(
+    proposalPk: number,
+    tagIds: number[]
+  ): Promise<boolean> {
+    try {
+      await database.transaction(async (trx) => {
+        await database('proposal_tags')
+          .where('proposal_pk', proposalPk)
+          .del()
+          .transacting(trx);
+
+        if (tagIds.length > 0) {
+          await database('proposal_tags')
+            .insert(
+              tagIds.map((tagId) => ({
+                tag_id: tagId,
+                proposal_pk: proposalPk,
+              }))
+            )
+            .transacting(trx);
+        }
+        await trx.commit();
+      });
+
+      return true;
+    } catch (error) {
+      throw new GraphQLError(
+        `Could not assign tags ${tagIds} to proposal with id: ${proposalPk}`
+      );
+    }
   }
 
   async assingTagsToProposal(

@@ -10,6 +10,7 @@ import {
   AssignTagsToProposalArgs,
   RemoveTagsFromProposalArgs,
 } from '../resolvers/mutations/AssignTagsToProposalMutation';
+import { UpdateProposalTagsArgs } from '../resolvers/mutations/UpdateProposalTagsMutation';
 
 @injectable()
 export default class TagMutations {
@@ -17,6 +18,22 @@ export default class TagMutations {
     @inject(Tokens.TagDataSource)
     private dataSource: TagDataSource
   ) {}
+
+  @Authorized([Roles.USER_OFFICER])
+  async updateProposalTags(
+    agent: UserWithRole | null,
+    args: UpdateProposalTagsArgs
+  ): Promise<boolean | Rejection> {
+    return this.dataSource
+      .updateProposalTags(args.proposalPk, args.tagIds)
+      .catch((error) => {
+        return rejection(
+          'Could not update proposal tag/s',
+          { agent, args },
+          error
+        );
+      });
+  }
 
   @Authorized([Roles.USER_OFFICER])
   async assignTagsToProposal(

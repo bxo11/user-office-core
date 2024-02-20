@@ -1,0 +1,3 @@
+mutation updateProposalTags($proposalPk: Int!, $tagIds: [Int!]!) {
+  updateProposalTags(proposalPk: $proposalPk, tagIds: $tagIds)
+}
