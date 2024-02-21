@@ -170,12 +170,12 @@ const ProposalsMenuListItem = () => {
 
 const TeamMeetingsMenuListItem = () => {
   return (
-    <Tooltip title="Call review mettings">
+    <Tooltip title="Call review meetings">
       <ListItem component={NavLink} to="/CallReviewMeetings" button>
         <ListItemIcon>
           <WorkspacesIcon />
         </ListItemIcon>
-        <ListItemText primary="Call review mettings" />
+        <ListItemText primary="Call review meetings" />
       </ListItem>
     </Tooltip>
   );
