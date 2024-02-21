@@ -9,6 +9,7 @@ import database from './database';
 import {
   createBasicUserObject,
   createReviewMeetingObject as createReviewMeetingObject,
+  InstitutionRecord,
   ReviewMeetingRecord as ReviewMeetingRecord,
   UserRecord,
 } from './records';
@@ -35,12 +36,12 @@ class PostgresReviewMeetingDataSource implements ReviewMeetingDataSource {
     return database
       .select('*')
       .from('users as u')
-      .join('review_meeting_has_users as temp', {
-        'u.user_id': 'temp.user_id',
+      .join('review_meeting_has_users as rmu', {
+        'u.user_id': 'rmu.user_id',
       })
-      .join('institutions as i', { 'u.organisation': 'i.institution_id' })
-      .where('temp.review_meeting_id', reviewMeetingId)
-      .then((usersRecord: UserRecord[]) => {
+      .join('institutions as i', { 'u.institution_id': 'i.institution_id' })
+      .where('rmu.review_meeting_id', reviewMeetingId)
+      .then((usersRecord: Array<UserRecord & InstitutionRecord>) => {
         const users = usersRecord.map((user) => createBasicUserObject(user));
 
         return users;
