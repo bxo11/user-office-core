@@ -10,6 +10,9 @@ switch (process.env.DEPENDENCY_CONFIG) {
   case 'stfc':
     require('./dependencyConfigSTFC');
     break;
+  case 'maxiv':
+    require('./dependencyConfigMAXIV');
+    break;
   case 'test':
     require('./dependencyConfigTest');
     break;
