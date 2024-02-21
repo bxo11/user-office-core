@@ -17,13 +17,15 @@ BEGIN
             );
 
     CREATE TABLE safety_management (
-      proposal_pk serial PRIMARY KEY REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
-      safety_level INTEGER NOT NULL DEFAULT 0
+      safety_management_id serial PRIMARY KEY,
+      proposal_pk INTEGER NOT NULL  REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
+      safety_level INTEGER NOT NULL DEFAULT NULL,
+      notes TEXT DEFAULT NULL
     );
 
       CREATE TABLE safety_management_comments (
             comment_id serial PRIMARY KEY,
-            proposal_pk INTEGER NOT NULL REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
+            safety_management_id INTEGER NOT NULL REFERENCES safety_management (safety_management_id) ON DELETE CASCADE,
             comment TEXT NOT NULL,
             user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
             created_at TIMESTAMPTZ NOT NULL

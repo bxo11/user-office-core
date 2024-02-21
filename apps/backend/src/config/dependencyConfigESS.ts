@@ -12,7 +12,6 @@ import PostgresGenericTemplateDataSource from '../datasources/postgres/GenericTe
 import PostgresInstrumentDataSource from '../datasources/postgres/InstrumentDataSource';
 import PostgresInternalReviewDataSource from '../datasources/postgres/InternalReviewDataSource';
 import PostgresPdfTemplateDataSource from '../datasources/postgres/PdfTemplateDataSource';
-import TagDataSource from '../datasources/postgres/TagDataSource';
 import PostgresPredefinedMessageDataSource from '../datasources/postgres/PredefinedMessageDataSource';
 import PostgresProposalDataSource from '../datasources/postgres/ProposalDataSource';
 import PostgresProposalEsiDataSource from '../datasources/postgres/ProposalEsiDataSource';
@@ -20,12 +19,14 @@ import PostgresProposalSettingsDataSource from '../datasources/postgres/Proposal
 import PostgresQuestionaryDataSource from '../datasources/postgres/QuestionaryDataSource';
 import PostgresRedeemCodesDataSource from '../datasources/postgres/RedeemCodesDataSource';
 import PostgresReviewDataSource from '../datasources/postgres/ReviewDataSource';
+import SafetyManagementDataSource from '../datasources/postgres/SafetyManagementDataSource';
 import PostgresSampleDataSource from '../datasources/postgres/SampleDataSource';
 import PostgresSampleEsiDataSource from '../datasources/postgres/SampleEsiDataSource';
 import PostgresScheduledEventDataSource from '../datasources/postgres/ScheduledEventDataSource';
 import PostgresShipmentDataSource from '../datasources/postgres/ShipmentDataSource';
 import PostgresStatusActionsDataSource from '../datasources/postgres/StatusActionsDataSource';
 import PostgresSystemDataSource from '../datasources/postgres/SystemDataSource';
+import TagDataSource from '../datasources/postgres/TagDataSource';
 import PostgresTemplateDataSource from '../datasources/postgres/TemplateDataSource';
 import PostgresUnitDataSource from '../datasources/postgres/UnitDataSource';
 import PostgresUserDataSource from '../datasources/postgres/UserDataSource';
@@ -77,6 +78,7 @@ mapClass(
   PostgresPredefinedMessageDataSource
 );
 mapClass(Tokens.TagDataSource, TagDataSource);
+mapClass(Tokens.SafetyManagementDataSource, SafetyManagementDataSource);
 
 mapClass(Tokens.UserAuthorization, OAuthAuthorization);
 

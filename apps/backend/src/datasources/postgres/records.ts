@@ -32,6 +32,7 @@ import {
 import { RedeemCode } from '../../models/RedeemCode';
 import { Review } from '../../models/Review';
 import { Role } from '../../models/Role';
+import { SafetyManagement } from '../../models/SafetyManagement';
 import { Sample } from '../../models/Sample';
 import { SampleExperimentSafetyInput } from '../../models/SampleExperimentSafetyInput';
 import { ScheduledEventCore } from '../../models/ScheduledEventCore';
@@ -704,6 +705,13 @@ export interface TagRecord {
   readonly category: string;
 }
 
+export interface SafetyManagementRecord {
+  readonly safety_management_id: number;
+  readonly proposal_pk: number;
+  readonly safety_level: number;
+  readonly notes: string;
+}
+
 export const createTopicObject = (record: TopicRecord) => {
   return new Topic(
     record.topic_id,
@@ -1278,4 +1286,15 @@ export const createRedeemCodeObject = (invite: RedeemCodeRecord) =>
 
 export const createTagObject = (tag: TagRecord) => {
   return new Tag(tag.tag_id, tag.tag, tag.category);
+};
+
+export const createSafetyManagementObject = (
+  safetyManagement: SafetyManagementRecord
+) => {
+  return new SafetyManagement(
+    safetyManagement.safety_management_id,
+    safetyManagement.proposal_pk,
+    safetyManagement.safety_level,
+    safetyManagement.notes
+  );
 };

@@ -1,13 +1,23 @@
-import { Button, Grid, Typography } from '@mui/material';
-import { Form, Formik, useFormikContext } from 'formik';
+import {
+  Button,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Typography,
+} from '@mui/material';
+import { Field, Form, Formik, useFormikContext } from 'formik';
+import { Select } from 'formik-mui';
 import React from 'react';
 import { Prompt } from 'react-router';
 
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
-import { Tag } from 'generated/sdk';
+import Editor from 'components/common/TinyEditor';
+import { Tag, TechnicalReviewStatus } from 'generated/sdk';
 import { useTagsData } from 'hooks/tag/useTagsData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
+import { Option } from 'utils/utilTypes';
 
 type SafetyManagementProps = {
   proposalPk: number;
@@ -29,6 +39,8 @@ const SafetyManagement = ({
 
   const initialValues = {
     proposalTags: proposalTags.map((tag) => tag.id),
+    status: '',
+    notes: '',
   };
 
   const PromptIfDirty = () => {
@@ -42,6 +54,18 @@ const SafetyManagement = ({
     );
   };
 
+  const statusOptions: Option[] = [
+    { text: 'Feasible', value: TechnicalReviewStatus.FEASIBLE },
+    {
+      text: 'Partially feasible',
+      value: TechnicalReviewStatus.PARTIALLY_FEASIBLE,
+    },
+    {
+      text: 'Unfeasible',
+      value: TechnicalReviewStatus.UNFEASIBLE,
+    },
+  ];
+
   return (
     <div data-cy="safety-management-tab">
       <Typography variant="h6" component="h2" gutterBottom>
@@ -50,52 +74,87 @@ const SafetyManagement = ({
       <Formik
         initialValues={initialValues}
         onSubmit={async (values): Promise<void> => {
-          // const initialTagIds = proposalTags.map((tag) => tag.id);
-
-          // const tagIdsToAssing = values.proposalTags
-          //   .filter((tagId) => !initialTagIds.includes(tagId))
-          //   .map((tagId) => tagId);
-
-          // const tagIdsToRemove = proposalTags
-          //   .filter((tag) => !values.proposalTags.includes(tag.id))
-          //   .map((tag) => tag.id);
-
-          //TODO: replace it with a single call e.g. api().updateProposalTags
-          // await Promise.all([
-          //   api().assignTagsToProposal({
-          //     proposalPk,
-          //     tagIds: tagIdsToAssing,
-          //   }),
-          //   api().removeTagsFromProposal({
-          //     proposalPk,
-          //     tagIds: tagIdsToRemove,
-          //   }),
-          // ]).then(() => {});
-
           await api({
-            toastSuccessMessage: 'Saved!',
+            toastSuccessMessage: 'Saved tags!',
           }).updateProposalTags({
             proposalPk,
             tagIds: values.proposalTags,
           });
         }}
       >
-        {({}) => (
+        {({ isSubmitting, setFieldValue, values }) => (
           <Form>
             <PromptIfDirty />
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <Grid item xs={6}>
-                  <FormikUIAutocomplete
-                    name="proposalTags"
-                    label="Proposal tags"
-                    loading={loadingTags}
-                    noOptionsText="No tags"
-                    data-cy="proposal-tags"
-                    items={tagOptions}
-                    multiple
-                  />
-                </Grid>
+                <FormikUIAutocomplete
+                  name="proposalTags"
+                  label="Proposal tags"
+                  loading={loadingTags}
+                  noOptionsText="No tags"
+                  data-cy="proposal-tags"
+                  items={tagOptions}
+                  multiple
+                />
+              </Grid>
+              <Grid item sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel
+                    htmlFor="status"
+                    shrink={!!values.status}
+                    required
+                  >
+                    Status
+                  </InputLabel>
+                  <Field
+                    name="status"
+                    type="text"
+                    component={Select}
+                    data-cy="technical-review-status"
+                    MenuProps={{ 'data-cy': 'technical-review-status-options' }}
+                    required
+                  >
+                    {statusOptions.map(({ value, text }) => (
+                      <MenuItem value={value} key={value}>
+                        {text}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <InputLabel htmlFor="publicComment" shrink margin="dense">
+                  Notes
+                </InputLabel>
+                <Editor
+                  id="notes"
+                  initialValue={initialValues.notes}
+                  init={{
+                    skin: false,
+                    content_css: false,
+                    plugins: [
+                      'link',
+                      'preview',
+                      'code',
+                      'charmap',
+                      'wordcount',
+                    ],
+                    toolbar: 'bold italic',
+                    branding: false,
+                  }}
+                  onEditorChange={(content, editor) => {
+                    const isStartContentDifferentThanCurrent =
+                      editor.startContent !==
+                      editor.contentDocument.body.innerHTML;
+
+                    if (
+                      isStartContentDifferentThanCurrent ||
+                      editor.isDirty()
+                    ) {
+                      setFieldValue('publicComment', content);
+                    }
+                  }}
+                />
               </Grid>
               <Grid item xs={12}>
                 <StyledButtonContainer>

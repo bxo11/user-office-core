@@ -1,9 +1,9 @@
 import { SafetyManagement } from '../models/SafetyManagement';
+import { UpdateProposalSafetyManagementArgs } from '../resolvers/mutations/UpdateProposalSafetyManagementMutation';
 
 export interface SafetyManagementDataSource {
   getProposalSafetyManagement(proposalPk: number): Promise<SafetyManagement>;
   updateProposalSafetyManagement(
-    proposalPk: number,
-    safetyManagement: boolean
+    args: UpdateProposalSafetyManagementArgs
   ): Promise<SafetyManagement>;
 }

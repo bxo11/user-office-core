@@ -18,6 +18,7 @@ import ProposalSettingsMutations from '../mutations/ProposalSettingsMutations';
 import QuestionaryMutations from '../mutations/QuestionaryMutations';
 import RedeemCodesMutations from '../mutations/RedeemCodesMutations';
 import ReviewMutations from '../mutations/ReviewMutations';
+import SafetyManagementMutations from '../mutations/SafetyManagementMutations';
 import SampleEsiMutations from '../mutations/SampleEsiMutations';
 import SampleMutations from '../mutations/SampleMutations';
 import ShipmentMutations from '../mutations/ShipmentMutations';
@@ -42,6 +43,7 @@ import ProposalQueries from '../queries/ProposalQueries';
 import ProposalSettingsQueries from '../queries/ProposalSettingsQueries';
 import QuestionaryQueries from '../queries/QuestionaryQueries';
 import ReviewQueries from '../queries/ReviewQueries';
+import SafetyManagementQueries from '../queries/SafetyManagementQueries';
 import SampleEsiQueries from '../queries/SampleEsiQueries';
 import SampleQueries from '../queries/SampleQueries';
 import ScheduledEventQueries from '../queries/ScheduledEventQueries';
@@ -80,6 +82,7 @@ interface ResolverContextQueries {
   predefinedMessage: PredefinedMessageQueries;
   internalReview: InternalReviewQueries;
   tag: TagQueries;
+  safetyManagement: SafetyManagementQueries;
 }
 
 interface ResolverContextMutations {
@@ -107,6 +110,7 @@ interface ResolverContextMutations {
   predefinedMessage: PredefinedMessageMutations;
   internalReview: InternalReviewMutations;
   tag: TagMutations;
+  safetyManagement: SafetyManagementMutations;
 }
 interface ResolverContextServices {
   pdfServices: PDFServices;
