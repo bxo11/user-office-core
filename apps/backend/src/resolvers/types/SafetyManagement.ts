@@ -11,8 +11,8 @@ export class SafetyManagement implements Partial<SafetyManagementOrigin> {
   @Field(() => Int)
   public proposalPk: number;
 
-  @Field(() => Int)
-  public safetyLevel: number;
+  @Field(() => Int, { nullable: true })
+  public safetyLevel?: number;
 
   @Field(() => String, { nullable: true })
   public notes?: string;

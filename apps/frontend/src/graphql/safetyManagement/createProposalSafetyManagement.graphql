@@ -1,0 +1,13 @@
+mutation createProposalSafetyManagement(
+  $proposalPk: Int!
+  $safetyLevel: Int!
+  $notes: String
+) {
+  createProposalSafetyManagement(
+    proposalPk: $proposalPk
+    safetyLevel: $safetyLevel
+    notes: $notes
+  ) {
+    ...safetyManagement
+  }
+}

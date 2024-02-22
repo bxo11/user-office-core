@@ -1,0 +1,6 @@
+fragment safetyManagement on SafetyManagement {
+  id
+  proposalPk
+  safetyLevel
+  notes
+}

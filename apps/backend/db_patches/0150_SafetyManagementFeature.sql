@@ -19,7 +19,7 @@ BEGIN
     CREATE TABLE safety_management (
       safety_management_id serial PRIMARY KEY,
       proposal_pk INTEGER NOT NULL  REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
-      safety_level INTEGER NOT NULL DEFAULT NULL,
+      safety_level INTEGER DEFAULT NULL,
       notes TEXT DEFAULT NULL
     );
 

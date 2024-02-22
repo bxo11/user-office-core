@@ -13,7 +13,9 @@ import { Prompt } from 'react-router';
 
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
 import Editor from 'components/common/TinyEditor';
-import { Tag, TechnicalReviewStatus } from 'generated/sdk';
+import UOLoader from 'components/common/UOLoader';
+import { Tag } from 'generated/sdk';
+import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
 import { useTagsData } from 'hooks/tag/useTagsData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
@@ -30,6 +32,15 @@ const SafetyManagement = ({
 }: SafetyManagementProps) => {
   const { api } = useDataApiWithFeedback();
   const { tags, loadingTags } = useTagsData({ category: 'PROPOSAL' });
+  const { safetyManagement, loadingSafetyManagement } = useSafetyManagementData(
+    {
+      proposalPk,
+    }
+  );
+
+  if (loadingSafetyManagement) {
+    return <UOLoader style={{ marginLeft: '50%', marginTop: '100px' }} />;
+  }
 
   const tagOptions =
     tags?.map((tag) => ({
@@ -39,8 +50,8 @@ const SafetyManagement = ({
 
   const initialValues = {
     proposalTags: proposalTags.map((tag) => tag.id),
-    status: '',
-    notes: '',
+    safetyLevel: safetyManagement?.safetyLevel || '',
+    notes: safetyManagement?.notes || '',
   };
 
   const PromptIfDirty = () => {
@@ -54,15 +65,15 @@ const SafetyManagement = ({
     );
   };
 
-  const statusOptions: Option[] = [
-    { text: 'Feasible', value: TechnicalReviewStatus.FEASIBLE },
+  const safetyLevelOptions: Option[] = [
+    { text: 'Green', value: 0 },
     {
-      text: 'Partially feasible',
-      value: TechnicalReviewStatus.PARTIALLY_FEASIBLE,
+      text: 'Yellow',
+      value: 1,
     },
     {
-      text: 'Unfeasible',
-      value: TechnicalReviewStatus.UNFEASIBLE,
+      text: 'Red',
+      value: 2,
     },
   ];
 
@@ -80,6 +91,24 @@ const SafetyManagement = ({
             proposalPk,
             tagIds: values.proposalTags,
           });
+
+          if (safetyManagement) {
+            await api({
+              toastSuccessMessage: 'Saved safety management decision!',
+            }).updateProposalSafetyManagement({
+              safetyManagementId: safetyManagement.id,
+              safetyLevel: Number(values.safetyLevel),
+              notes: values.notes,
+            });
+          } else {
+            await api({
+              toastSuccessMessage: 'Saved safety management decision!',
+            }).createProposalSafetyManagement({
+              proposalPk,
+              safetyLevel: Number(values.safetyLevel),
+              notes: values.notes,
+            });
+          }
         }}
       >
         {({ isSubmitting, setFieldValue, values }) => (
@@ -95,26 +124,27 @@ const SafetyManagement = ({
                   data-cy="proposal-tags"
                   items={tagOptions}
                   multiple
+                  disabled={isSubmitting}
                 />
               </Grid>
               <Grid item sm={6}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel
-                    htmlFor="status"
-                    shrink={!!values.status}
+                    htmlFor="safetyLevel"
+                    shrink={!!values.safetyLevel}
                     required
                   >
                     Status
                   </InputLabel>
                   <Field
-                    name="status"
-                    type="text"
+                    name="safetyLevel"
                     component={Select}
-                    data-cy="technical-review-status"
-                    MenuProps={{ 'data-cy': 'technical-review-status-options' }}
+                    disabled={isSubmitting}
+                    data-cy="safety-level"
+                    MenuProps={{ 'data-cy': 'safety-level-options' }}
                     required
                   >
-                    {statusOptions.map(({ value, text }) => (
+                    {safetyLevelOptions.map(({ value, text }) => (
                       <MenuItem value={value} key={value}>
                         {text}
                       </MenuItem>
@@ -123,11 +153,12 @@ const SafetyManagement = ({
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <InputLabel htmlFor="publicComment" shrink margin="dense">
+                <InputLabel htmlFor="notes" shrink margin="dense">
                   Notes
                 </InputLabel>
                 <Editor
                   id="notes"
+                  disabled={isSubmitting}
                   initialValue={initialValues.notes}
                   init={{
                     skin: false,
@@ -151,7 +182,7 @@ const SafetyManagement = ({
                       isStartContentDifferentThanCurrent ||
                       editor.isDirty()
                     ) {
-                      setFieldValue('publicComment', content);
+                      setFieldValue('notes', content);
                     }
                   }}
                 />
@@ -161,6 +192,7 @@ const SafetyManagement = ({
                   <Button
                     type="submit"
                     data-cy="save-safety-management-decision"
+                    disabled={isSubmitting}
                   >
                     Save
                   </Button>

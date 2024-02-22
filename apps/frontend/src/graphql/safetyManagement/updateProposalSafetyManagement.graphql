@@ -1,0 +1,15 @@
+mutation updateProposalSafetyManagement(
+  $proposalPk: Int
+  $safetyLevel: Int
+  $notes: String
+  $safetyManagementId: Int!
+) {
+  updateProposalSafetyManagement(
+    proposalPk: $proposalPk
+    safetyLevel: $safetyLevel
+    notes: $notes
+    safetyManagementId: $safetyManagementId
+  ) {
+    ...safetyManagement
+  }
+}

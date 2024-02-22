@@ -14,16 +14,16 @@ import { SafetyManagement } from '../types/SafetyManagement';
 @ArgsType()
 export class UpdateProposalSafetyManagementArgs {
   @Field(() => Int)
-  public safetyManagemntId: number;
+  public safetyManagementId: number;
 
   @Field(() => Int, { nullable: true })
-  public proposalPk: number;
+  public proposalPk?: number;
 
   @Field(() => Int, { nullable: true })
-  public safetyLevel: number;
+  public safetyLevel?: number;
 
   @Field(() => String, { nullable: true })
-  public notes: string;
+  public notes?: string;
 }
 
 @Resolver()
