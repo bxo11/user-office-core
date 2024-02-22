@@ -11,6 +11,7 @@ import {
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
+import { ProposalEndStatus } from '../../models/Proposal';
 import { QuestionFilterCompareOperator } from '../../models/Questionary';
 import { ReviewerFilter } from '../../models/Review';
 import { DataType } from '../../models/Template';
@@ -51,8 +52,8 @@ export class ProposalsFilter {
   @Field(() => Int, { nullable: true })
   public proposalStatusId?: number;
 
-  @Field(() => Int, { nullable: true })
-  public proposalFinalStatusId?: number;
+  @Field(() => ProposalEndStatus, { nullable: true })
+  public proposalFinalStatus?: ProposalEndStatus;
 
   @Field(() => [String], { nullable: true })
   public shortCodes?: string[];

@@ -5,7 +5,7 @@ import { Knex } from 'knex';
 import { injectable } from 'tsyringe';
 
 import { Event } from '../../events/event.enum';
-import { Proposal, Proposals } from '../../models/Proposal';
+import { Proposal, ProposalEndStatus, Proposals } from '../../models/Proposal';
 import { ProposalView } from '../../models/ProposalView';
 import { getQuestionDefinition } from '../../models/questionTypes/QuestionRegistry';
 import { ReviewerFilter } from '../../models/Review';
@@ -382,10 +382,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           );
         }
 
-        if (filter?.proposalFinalStatusId) {
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
           query.where(
             'proposal_table_view.final_status',
-            filter?.proposalFinalStatusId
+            filter.proposalFinalStatus
           );
         }
 
@@ -499,8 +506,15 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           query.where('proposals.status_id', filter?.proposalStatusId);
         }
 
-        if (filter?.proposalFinalStatusId) {
-          query.where('proposals.final_status', filter?.proposalFinalStatusId);
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
+          query.where('proposals.final_status', filter.proposalFinalStatus);
         }
 
         if (filter?.shortCodes) {
@@ -599,10 +613,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           );
         }
 
-        if (filter?.proposalFinalStatusId) {
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
           query.where(
             'proposal_table_view.final_status',
-            filter?.proposalFinalStatusId
+            filter.proposalFinalStatus
           );
         }
 

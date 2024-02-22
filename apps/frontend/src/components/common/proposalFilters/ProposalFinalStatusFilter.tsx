@@ -3,11 +3,11 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
-import PropTypes from 'prop-types';
 import React, { Dispatch } from 'react';
-import { useQueryParams, NumberParam } from 'use-query-params';
+import { useQueryParams, StringParam } from 'use-query-params';
 
-import { ProposalStatus } from 'generated/sdk';
+import { ProposalEndStatus } from 'generated/sdk';
+import { Option } from 'utils/utilTypes';
 
 const useStyles = makeStyles(() => ({
   loadingText: {
@@ -16,29 +16,31 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-type ProposalStatusFilterProps = {
-  proposalStatuses?: ProposalStatus[];
-
-  onChange?: Dispatch<number>;
+type ProposalFinalStatusFilterProps = {
+  proposalFinalStatuses?: ProposalEndStatus[];
+  onChange?: Dispatch<string | null>;
   shouldShowAll?: boolean;
-  proposalStatusId?: number;
+  proposalFinalStatus?: string;
 };
 
-const ProposalStatusFilter = ({
-  proposalStatuses,
-
-  proposalStatusId,
+const ProposalFinalStatusFilter = ({
+  proposalFinalStatuses,
+  proposalFinalStatus,
   onChange,
   shouldShowAll,
-}: ProposalStatusFilterProps) => {
-  const classes = useStyles();
+}: ProposalFinalStatusFilterProps) => {
   const [, setQuery] = useQueryParams({
-    proposalStatus: NumberParam,
+    proposalFinalStatus: StringParam,
   });
 
-  if (proposalStatuses === undefined) {
+  if (proposalFinalStatuses === undefined) {
     return null;
   }
+
+  const finalStatusOptions: Option[] = proposalFinalStatuses.map((key) => ({
+    value: key,
+    text: key,
+  }));
 
   /**
    * NOTE: We might use https://material-ui.com/components/autocomplete/.
@@ -48,27 +50,32 @@ const ProposalStatusFilter = ({
     <>
       <FormControl fullWidth>
         <InputLabel id="proposal-status-select-label" shrink>
-          Status
+          Final status
         </InputLabel>
         <Select
           id="proposal-status-select"
           aria-labelledby="proposal-status-select-label"
-          onChange={(proposalStatus) => {
+          onChange={(proposalFinalStatus) => {
             setQuery({
-              proposalStatus: proposalStatus.target.value
-                ? (proposalStatus.target.value as number)
+              proposalFinalStatus: proposalFinalStatus.target.value
+                ? (proposalFinalStatus.target.value as string)
                 : undefined,
             });
-            onChange?.(proposalStatus.target.value as number);
+
+            onChange?.(
+              proposalFinalStatus.target.value
+                ? (proposalFinalStatus.target.value as string)
+                : null
+            );
           }}
-          value={proposalStatusId || 0}
+          value={proposalFinalStatus || 0}
           defaultValue={0}
           data-cy="status-filter"
         >
           {shouldShowAll && <MenuItem value={0}>All</MenuItem>}
-          {proposalStatuses.map((proposalStatus) => (
-            <MenuItem key={proposalStatus.id} value={proposalStatus.id}>
-              {proposalStatus.name}
+          {finalStatusOptions.map(({ value, text }) => (
+            <MenuItem value={value} key={value}>
+              {text}
             </MenuItem>
           ))}
         </Select>
@@ -77,12 +84,12 @@ const ProposalStatusFilter = ({
   );
 };
 
-ProposalStatusFilter.propTypes = {
-  proposalStatuses: PropTypes.array,
-  isLoading: PropTypes.bool,
-  onChange: PropTypes.func,
-  shouldShowAll: PropTypes.bool,
-  proposalStatusId: PropTypes.number,
-};
+// ProposalFinalStatusFilter.propTypes = {
+//   proposalStatuses: PropTypes.array,
+//   isLoading: PropTypes.bool,
+//   onChange: PropTypes.func,
+//   shouldShowAll: PropTypes.bool,
+//   proposalStatusId: PropTypes.number,
+// };
 
-export default ProposalStatusFilter;
+export default ProposalFinalStatusFilter;

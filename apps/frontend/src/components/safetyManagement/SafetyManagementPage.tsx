@@ -13,7 +13,7 @@ import {
 import ProposalFilterBar, {
   questionaryFilterFromUrlQuery,
 } from 'components/proposal/ProposalFilterBar';
-import { ProposalsFilter } from 'generated/sdk';
+import { ProposalEndStatus, ProposalsFilter } from 'generated/sdk';
 import { useCallsData } from 'hooks/call/useCallsData';
 import { useInstrumentsData } from 'hooks/instrument/useInstrumentsData';
 import { useProposalStatusesData } from 'hooks/settings/useProposalStatusesData';
@@ -25,6 +25,7 @@ export type ProposalUrlQueryParamsType = {
   call: QueryParamConfig<number | null | undefined>;
   instrument: QueryParamConfig<number | null | undefined>;
   proposalStatus: QueryParamConfig<number | null | undefined>;
+  proposalFinalStatus: QueryParamConfig<string | null | undefined>;
   reviewModal: QueryParamConfig<number | null | undefined>;
   compareOperator: QueryParamConfig<string | null | undefined>;
   questionId: QueryParamConfig<string | null | undefined>;
@@ -40,6 +41,7 @@ const SafetyManagementPage = () => {
       call: NumberParam,
       instrument: NumberParam,
       proposalStatus: NumberParam,
+      proposalFinalStatus: StringParam,
       reviewModal: NumberParam,
       questionId: StringParam,
       proposalid: StringParam,
@@ -51,7 +53,11 @@ const SafetyManagementPage = () => {
     callId: urlQueryParams.call,
     instrumentId: urlQueryParams.instrument,
     proposalStatusId: urlQueryParams.proposalStatus,
-    proposalFinalStatusId: 1,
+    proposalFinalStatus: urlQueryParams.proposalFinalStatus
+      ? ProposalEndStatus[
+          urlQueryParams.proposalFinalStatus as keyof typeof ProposalEndStatus
+        ]
+      : undefined,
     referenceNumbers: urlQueryParams.proposalid
       ? [urlQueryParams.proposalid]
       : undefined,
@@ -74,6 +80,14 @@ const SafetyManagementPage = () => {
           proposalStatuses={{
             data: proposalStatuses,
             isLoading: loadingProposalStatuses,
+          }}
+          proposalFinalStatuses={{
+            data: [
+              ProposalEndStatus.ACCEPTED,
+              ProposalEndStatus.REJECTED,
+              ProposalEndStatus.RESERVED,
+              ProposalEndStatus.UNSET,
+            ],
           }}
           setProposalFilter={setProposalFilter}
           filter={proposalFilter}

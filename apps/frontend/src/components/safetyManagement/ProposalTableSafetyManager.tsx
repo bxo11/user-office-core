@@ -273,8 +273,7 @@ const ProposalTableSafetyManager = ({
     sortDirection: urlQueryParams?.sortDirection ?? undefined,
     searchText: urlQueryParams?.search ?? undefined,
   });
-  console.log('query', query);
-  console.log('proposalFilter', proposalFilter);
+
   const {
     loading,
     setProposalsData,
