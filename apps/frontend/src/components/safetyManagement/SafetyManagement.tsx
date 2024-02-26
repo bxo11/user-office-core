@@ -14,9 +14,10 @@ import { Prompt } from 'react-router';
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
 import Editor from 'components/common/TinyEditor';
 import UOLoader from 'components/common/UOLoader';
-import { Tag } from 'generated/sdk';
+import { Tag, UserRole } from 'generated/sdk';
 import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
 import { useTagsData } from 'hooks/tag/useTagsData';
+import { useUsersData } from 'hooks/user/useUsersData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import { Option } from 'utils/utilTypes';
@@ -37,6 +38,9 @@ const SafetyManagement = ({
       proposalPk,
     }
   );
+  const { usersData, loadingUsersData } = useUsersData({
+    userRole: UserRole.INSTRUMENT_SCIENTIST,
+  });
 
   if (loadingSafetyManagement) {
     return <UOLoader style={{ marginLeft: '50%', marginTop: '100px' }} />;
@@ -52,6 +56,8 @@ const SafetyManagement = ({
     proposalTags: proposalTags.map((tag) => tag.id),
     safetyLevel: safetyManagement?.safetyLevel || '',
     notes: safetyManagement?.notes || '',
+    responsibleUsers:
+      safetyManagement?.responsibleUsers.map((user) => user.id) || [],
   };
 
   const PromptIfDirty = () => {
@@ -99,6 +105,7 @@ const SafetyManagement = ({
               safetyManagementId: safetyManagement.id,
               safetyLevel: Number(values.safetyLevel),
               notes: values.notes,
+              responsibleUserIds: values.responsibleUsers,
             });
           } else {
             await api({
@@ -107,6 +114,7 @@ const SafetyManagement = ({
               proposalPk,
               safetyLevel: Number(values.safetyLevel),
               notes: values.notes,
+              responsibleUserIds: values.responsibleUsers,
             });
           }
         }}
@@ -151,6 +159,21 @@ const SafetyManagement = ({
                     ))}
                   </Field>
                 </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormikUIAutocomplete
+                  name="responsibleUsers"
+                  label="Responsible users"
+                  loading={loadingUsersData}
+                  noOptionsText="No users"
+                  data-cy="responsible-users"
+                  items={usersData.users.map((user) => ({
+                    text: user.firstname + ' ' + user.lastname,
+                    value: user.id,
+                  }))}
+                  multiple
+                  disabled={isSubmitting}
+                />
               </Grid>
               <Grid item xs={12}>
                 <InputLabel htmlFor="notes" shrink margin="dense">

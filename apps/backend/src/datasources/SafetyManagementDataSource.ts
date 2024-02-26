@@ -1,4 +1,5 @@
 import { SafetyManagement } from '../models/SafetyManagement';
+import { BasicUserDetails } from '../models/User';
 import { CreateProposalSafetyManagementArgs } from '../resolvers/mutations/CreateProposalSafetyManagementMutation';
 import { UpdateProposalSafetyManagementArgs } from '../resolvers/mutations/UpdateProposalSafetyManagementMutation';
 
@@ -8,4 +9,13 @@ export interface SafetyManagementDataSource {
   ): Promise<SafetyManagement | null>;
   create(args: CreateProposalSafetyManagementArgs): Promise<SafetyManagement>;
   update(args: UpdateProposalSafetyManagementArgs): Promise<SafetyManagement>;
+  getResponsibleUsers(safetyManagementId: number): Promise<BasicUserDetails[]>;
+  addResponsibleUsers(
+    safetyManagementId: number,
+    userId: number[]
+  ): Promise<boolean>;
+  removeResponsibleUsers(
+    safetyManagementId: number,
+    userId: number[]
+  ): Promise<boolean>;
 }

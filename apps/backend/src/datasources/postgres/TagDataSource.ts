@@ -54,7 +54,6 @@ export default class PostgresTagDataSource implements TagDataSource {
             )
             .transacting(trx);
         }
-        await trx.commit();
       });
 
       return true;

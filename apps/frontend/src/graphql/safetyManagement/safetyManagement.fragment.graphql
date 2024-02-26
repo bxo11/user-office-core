@@ -3,4 +3,7 @@ fragment safetyManagement on SafetyManagement {
   proposalPk
   safetyLevel
   notes
+  responsibleUsers {
+    ...basicUserDetails
+  }
 }

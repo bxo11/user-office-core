@@ -3,12 +3,14 @@ mutation updateProposalSafetyManagement(
   $safetyLevel: Int
   $notes: String
   $safetyManagementId: Int!
+  $responsibleUserIds: [Int!]
 ) {
   updateProposalSafetyManagement(
     proposalPk: $proposalPk
     safetyLevel: $safetyLevel
     notes: $notes
     safetyManagementId: $safetyManagementId
+    responsibleUserIds: $responsibleUserIds
   ) {
     ...safetyManagement
   }

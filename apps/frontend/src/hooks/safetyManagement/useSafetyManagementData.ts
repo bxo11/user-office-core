@@ -15,14 +15,15 @@ export function useSafetyManagementData({
   >;
 } {
   const api = useDataApi();
-  const [safetyManagement, setTags] = useState<SafetyManagement | null>(null);
+  const [safetyManagement, setSafetyManagement] =
+    useState<SafetyManagement | null>(null);
   const [loadingSafetyManagement, setLoadingTags] = useState(true);
 
   const setSafetyManagementWithLoading = (
     data: SetStateAction<SafetyManagement | null>
   ) => {
     setLoadingTags(true);
-    setTags(data);
+    setSafetyManagement(data);
     setLoadingTags(false);
   };
 
@@ -39,7 +40,7 @@ export function useSafetyManagementData({
         }
 
         if (data.proposalSafetyManagement) {
-          setTags(data.proposalSafetyManagement);
+          setSafetyManagement(data.proposalSafetyManagement);
         }
         setLoadingTags(false);
       });

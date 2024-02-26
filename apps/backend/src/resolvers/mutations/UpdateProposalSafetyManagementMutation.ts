@@ -24,6 +24,9 @@ export class UpdateProposalSafetyManagementArgs {
 
   @Field(() => String, { nullable: true })
   public notes?: string;
+
+  @Field(() => [Int], { nullable: true })
+  public responsibleUserIds?: number[];
 }
 
 @Resolver()

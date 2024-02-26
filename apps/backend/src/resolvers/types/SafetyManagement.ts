@@ -1,6 +1,18 @@
-import { ObjectType, Field, Int, Directive } from 'type-graphql';
+import {
+  ObjectType,
+  Field,
+  Int,
+  Resolver,
+  FieldResolver,
+  Root,
+  Ctx,
+  Directive,
+} from 'type-graphql';
 
+import { ResolverContext } from '../../context';
+import { isRejection } from '../../models/Rejection';
 import { SafetyManagement as SafetyManagementOrigin } from '../../models/SafetyManagement';
+import { BasicUserDetails } from './BasicUserDetails';
 
 @ObjectType()
 @Directive('@key(fields: "id")')
@@ -16,4 +28,20 @@ export class SafetyManagement implements Partial<SafetyManagementOrigin> {
 
   @Field(() => String, { nullable: true })
   public notes?: string;
+}
+
+@Resolver(() => SafetyManagement)
+export class SafetyManagementResolver {
+  @FieldResolver(() => [BasicUserDetails])
+  async responsibleUsers(
+    @Root() safetyManagement: SafetyManagement,
+    @Ctx() context: ResolverContext
+  ): Promise<BasicUserDetails[] | null> {
+    const users =
+      context.queries.safetyManagement.dataSource.getResponsibleUsers(
+        safetyManagement.id
+      );
+
+    return isRejection(users) ? [] : users;
+  }
 }

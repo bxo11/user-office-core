@@ -10,14 +10,14 @@ import { UserWithRole } from '../models/User';
 export default class SafetyManagementQueries {
   constructor(
     @inject(Tokens.SafetyManagementDataSource)
-    private dataSource: SafetyManagementDataSource
+    public dataSource: SafetyManagementDataSource
   ) {}
 
   @Authorized()
   async getProposalSafetyManagement(
     agent: UserWithRole | null,
     proposalPk: number
-  ): Promise<SafetyManagement> {
+  ): Promise<SafetyManagement | null> {
     const safetyManagement = await this.dataSource.getProposalSafetyManagement(
       proposalPk
     );
