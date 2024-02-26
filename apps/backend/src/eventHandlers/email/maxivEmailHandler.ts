@@ -5,6 +5,7 @@ import { Tokens } from '../../config/Tokens';
 import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
+import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
 import { ProposalDataSource } from '../../datasources/ProposalDataSource';
 import { RedeemCodesDataSource } from '../../datasources/RedeemCodesDataSource';
 import { ReviewMeetingDataSource } from '../../datasources/ReviewMeetingDataSource';
@@ -37,6 +38,9 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
   );
   const reviewMeetingDataSource = container.resolve<ReviewMeetingDataSource>(
     Tokens.ReviewMeetingDataSource
+  );
+  const instrumentDataSource = container.resolve<InstrumentDataSource>(
+    Tokens.InstrumentDataSource
   );
 
   if (event.isRejection) {
@@ -326,13 +330,18 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
         reviewMeeting.id
       );
       const templateId = JSON.parse(event.inputArgs ?? '{}')[0].templateId;
+      const instrument = await instrumentDataSource.getInstrument(
+        reviewMeeting.instrumentId
+      );
 
       mailService
         .sendMail({
           content: {
             template_id: templateId,
           },
-          substitution_data: {},
+          substitution_data: {
+            instrumentName: instrument?.name,
+          },
           recipients: participants.map((participant) => {
             return { address: participant.email };
           }),
