@@ -1,4 +1,6 @@
+import fs from 'fs';
 import path from 'path';
+import util from 'util';
 
 import { logger } from '@user-office-software/duo-logger';
 import EmailTemplates from 'email-templates';
@@ -8,6 +10,9 @@ import { isProduction } from '../../utils/helperFunctions';
 import EmailSettings from './EmailSettings';
 import { MailService, STFCEmailTemplate, SendMailResults } from './MailService';
 import { ResultsPromise } from './SparkPost';
+
+const readdir = util.promisify(fs.readdir);
+const stat = util.promisify(fs.stat);
 
 export class SMTPMailService extends MailService {
   private _email: EmailTemplates<any>;
@@ -42,15 +47,7 @@ export class SMTPMailService extends MailService {
           relativeTo: path.resolve(process.env.EMAIL_TEMPLATE_PATH || ''),
         },
       },
-      getPath: this.getEmailTemplatePath,
     });
-  }
-
-  private getEmailTemplatePath(type: string, template: string): string {
-    return path.join(
-      process.env.EMAIL_TEMPLATE_PATH || '',
-      `${template}.${type}`
-    );
   }
 
   private getSmtpAuthOptions() {
@@ -84,17 +81,7 @@ export class SMTPMailService extends MailService {
       sendMailResults.id = 'test';
     }
 
-    const template =
-      this.getEmailTemplatePath('html', options.content.template_id) + '.pug';
-
-    if (
-      !(await (this._email as any).templateExists(template)) &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      logger.logError('Template does not exist', {
-        templateId: template,
-      });
-
+    if (process.env.NODE_ENV === 'test') {
       return { results: sendMailResults };
     }
 
@@ -145,19 +132,50 @@ export class SMTPMailService extends MailService {
   async getEmailTemplates(
     includeDraft = false
   ): ResultsPromise<STFCEmailTemplate[]> {
-    return {
-      results: [
-        {
-          id: 'my-first-email',
-          name: 'My First Email',
-          description: 'A test message from STFC',
-        },
-        {
-          id: 'my-second-email',
-          name: 'My Second Email',
-          description: 'A test message from STFC',
-        },
-      ],
-    };
+    const templatesDir = process.env.EMAIL_TEMPLATE_PATH || '';
+    try {
+      const items = await readdir(templatesDir);
+      const templates: STFCEmailTemplate[] = [];
+
+      for (const item of items) {
+        const itemPath = path.join(templatesDir, item);
+        const itemStat = await stat(itemPath);
+
+        if (itemStat.isDirectory()) {
+          let isDraft = false;
+
+          // Optionally, check if this template is a draft by some logic, e.g., a specific file exists
+          // Example: A `.draft` file in the directory indicates it's a draft
+          if (!includeDraft) {
+            const draftFilePath = path.join(itemPath, '.draft');
+            try {
+              await stat(draftFilePath);
+              isDraft = true;
+            } catch {
+              // No action needed if the file does not exist
+            }
+          }
+
+          if (!includeDraft && isDraft) {
+            continue;
+          }
+
+          templates.push({
+            id: item,
+            name: item,
+            description: '',
+          });
+        }
+      }
+
+      return { results: templates };
+    } catch (error) {
+      logger.logError('Failed to list email templates', { error });
+
+      return Promise.reject({
+        error: 'Failed to list email templates',
+        details: error,
+      });
+    }
   }
 }
