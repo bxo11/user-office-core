@@ -30,7 +30,7 @@ import PostgresUnitDataSource from '../datasources/postgres/UnitDataSource';
 import PostgresUserDataSource from '../datasources/postgres/UserDataSource';
 import PostgresVisitDataSource from '../datasources/postgres/VisitDataSource';
 import { maxivEmailHandler } from '../eventHandlers/email/maxivEmailHandler';
-import { SparkPostMailService } from '../eventHandlers/MailService/SparkPostMailService';
+import { SMTPMailService } from '../eventHandlers/MailService/SMTPMailService';
 import {
   createListenToRabbitMQHandler,
   createPostToRabbitMQHandler,
@@ -80,7 +80,7 @@ mapClass(Tokens.UserAuthorization, OAuthAuthorization);
 
 mapClass(Tokens.AssetRegistrar, EAMAssetRegistrar);
 
-mapClass(Tokens.MailService, SparkPostMailService);
+mapClass(Tokens.MailService, SMTPMailService);
 
 mapValue(Tokens.FapDataColumns, FapDataColumns);
 mapValue(Tokens.FapDataRow, getDataRow);

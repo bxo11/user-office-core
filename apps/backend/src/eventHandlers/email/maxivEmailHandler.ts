@@ -191,7 +191,7 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
             { address: principalInvestigator.email },
             {
               address: {
-                email: 'useroffice@esss.se',
+                email: 'maxivoffice',
                 header_to: principalInvestigator.email,
               },
             },
@@ -240,7 +240,7 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
             { address: fapReviewer.email },
             {
               address: {
-                email: 'useroffice@esss.se',
+                email: 'maxivoffice',
                 header_to: fapReviewer.email,
               },
             },
