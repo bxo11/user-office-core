@@ -10,12 +10,4 @@ export interface SafetyManagementDataSource {
   create(args: CreateProposalSafetyManagementArgs): Promise<SafetyManagement>;
   update(args: UpdateProposalSafetyManagementArgs): Promise<SafetyManagement>;
   getResponsibleUsers(safetyManagementId: number): Promise<BasicUserDetails[]>;
-  addResponsibleUsers(
-    safetyManagementId: number,
-    userId: number[]
-  ): Promise<boolean>;
-  removeResponsibleUsers(
-    safetyManagementId: number,
-    userId: number[]
-  ): Promise<boolean>;
 }

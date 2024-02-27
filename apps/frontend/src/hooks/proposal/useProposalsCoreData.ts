@@ -30,6 +30,7 @@ export function useProposalsCoreData(
     text,
     questionFilter,
     referenceNumbers,
+    proposalTagIds,
   } = filter;
 
   const fetchProposalsData = useCallback(
@@ -51,6 +52,7 @@ export function useProposalsCoreData(
               proposalStatusId,
               questionaryIds,
               referenceNumbers,
+              proposalTagIds,
               questionFilter: questionFilter && {
                 ...questionFilter,
                 value:
@@ -93,6 +95,7 @@ export function useProposalsCoreData(
               proposalStatusId,
               questionaryIds,
               referenceNumbers,
+              proposalTagIds,
               questionFilter: questionFilter && {
                 ...questionFilter,
                 value:
@@ -139,6 +142,7 @@ export function useProposalsCoreData(
       api,
       currentRole,
       referenceNumbers,
+      proposalTagIds,
       queryParameters,
     ]
   );

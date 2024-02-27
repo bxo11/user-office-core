@@ -26,6 +26,9 @@ export class UpdateProposalSafetyManagementArgs {
   public notes?: string;
 
   @Field(() => [Int], { nullable: true })
+  public tagIds?: number[];
+
+  @Field(() => [Int], { nullable: true })
   public responsibleUserIds?: number[];
 }
 

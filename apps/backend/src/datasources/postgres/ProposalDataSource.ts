@@ -405,6 +405,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
             `proposal_table_view.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
           );
         }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal_table_view.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
+          );
+        }
+
         if (filter?.questionFilter) {
           const questionFilter = filter.questionFilter;
 
@@ -526,6 +537,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
             `proposals.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
           );
         }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
+          );
+        }
+
         if (filter?.referenceNumbers) {
           query.whereIn('proposals.proposal_id', filter.referenceNumbers);
         }
@@ -634,6 +656,16 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
 
           query.whereRaw(
             `proposal_table_view.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
+          );
+        }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
           );
         }
 

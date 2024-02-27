@@ -66,6 +66,9 @@ export class ProposalsFilter {
 
   @Field(() => [Int], { nullable: true })
   public templateIds?: number[];
+
+  @Field(() => [Int], { nullable: true })
+  public proposalTagIds?: number[];
 }
 
 @ArgsType()

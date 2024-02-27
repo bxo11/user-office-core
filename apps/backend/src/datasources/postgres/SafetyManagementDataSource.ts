@@ -1,11 +1,14 @@
 import { GraphQLError } from 'graphql';
-import { injectable } from 'tsyringe';
+import { Knex } from 'knex';
+import { inject, injectable } from 'tsyringe';
 
+import { Tokens } from '../../config/Tokens';
 import { SafetyManagement } from '../../models/SafetyManagement';
 import { BasicUserDetails } from '../../models/User';
 import { CreateProposalSafetyManagementArgs } from '../../resolvers/mutations/CreateProposalSafetyManagementMutation';
 import { UpdateProposalSafetyManagementArgs } from '../../resolvers/mutations/UpdateProposalSafetyManagementMutation';
 import { SafetyManagementDataSource } from '../SafetyManagementDataSource';
+import { TagDataSource } from '../TagDataSource';
 import database from './database';
 import {
   InstitutionRecord,
@@ -19,6 +22,10 @@ import {
 export default class PostgresSafetyManagementDataSource
   implements SafetyManagementDataSource
 {
+  constructor(
+    @inject(Tokens.TagDataSource) private tagDataSource: TagDataSource
+  ) {}
+
   async getProposalSafetyManagement(
     proposalPk: number
   ): Promise<SafetyManagement | null> {
@@ -50,15 +57,24 @@ export default class PostgresSafetyManagementDataSource
             .transacting(trx)
             .returning('*');
 
+          if (args.tagIds && args.tagIds.length > 0) {
+            await this.tagDataSource.insertProposalTags(
+              args.tagIds.map((tagId) => ({
+                tag_id: tagId,
+                proposal_pk: result.proposal_pk,
+              })),
+              trx
+            );
+          }
+
           if (args.responsibleUserIds && args.responsibleUserIds.length > 0) {
-            await database('safety_management_users')
-              .insert(
-                args.responsibleUserIds.map((userId) => ({
-                  user_id: userId,
-                  safety_management_id: result.safety_management_id,
-                }))
-              )
-              .transacting(trx);
+            await this.insertResponsisbleUsers(
+              args.responsibleUserIds.map((userId) => ({
+                user_id: userId,
+                safety_management_id: result.safety_management_id,
+              })),
+              trx
+            );
           }
 
           return result;
@@ -74,9 +90,11 @@ export default class PostgresSafetyManagementDataSource
     args: UpdateProposalSafetyManagementArgs
   ): Promise<SafetyManagement> {
     try {
-      const [safetyManagement]: SafetyManagementRecord[] =
+      const safetyManagement: SafetyManagementRecord =
         await database.transaction(async (trx) => {
-          const result = await database('safety_management')
+          const [result]: SafetyManagementRecord[] = await database(
+            'safety_management'
+          )
             .update({
               proposal_pk: args.proposalPk,
               safety_level: args.safetyLevel,
@@ -86,21 +104,34 @@ export default class PostgresSafetyManagementDataSource
             .transacting(trx)
             .returning('*');
 
+          if (args.tagIds) {
+            await this.tagDataSource.removeProposalTags(
+              result.proposal_pk,
+              trx
+            );
+
+            if (args.tagIds.length > 0) {
+              await this.tagDataSource.insertProposalTags(
+                args.tagIds.map((tagId) => ({
+                  tag_id: tagId,
+                  proposal_pk: result.proposal_pk,
+                })),
+                trx
+              );
+            }
+          }
+
           if (args.responsibleUserIds) {
-            await database('safety_management_users')
-              .where('safety_management_id', args.safetyManagementId)
-              .del()
-              .transacting(trx);
+            await this.removeResponsibleUsers(args.safetyManagementId, trx);
 
             if (args.responsibleUserIds.length > 0) {
-              await database('safety_management_users')
-                .insert(
-                  args.responsibleUserIds.map((userId) => ({
-                    user_id: userId,
-                    safety_management_id: args.safetyManagementId,
-                  }))
-                )
-                .transacting(trx);
+              await this.insertResponsisbleUsers(
+                args.responsibleUserIds.map((userId) => ({
+                  user_id: userId,
+                  safety_management_id: args.safetyManagementId,
+                })),
+                trx
+              );
             }
           }
 
@@ -129,16 +160,31 @@ export default class PostgresSafetyManagementDataSource
       );
   }
 
-  async addResponsibleUsers(
-    safetyManagementId: number,
-    userId: number[]
-  ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async insertResponsisbleUsers(
+    insertValues: { user_id: number; safety_management_id: number }[],
+    trx?: Knex.Transaction | null
+  ) {
+    let query = database('safety_management_users').insert(insertValues);
+
+    if (trx) {
+      query = query.transacting(trx);
+    }
+
+    await query;
   }
+
   async removeResponsibleUsers(
     safetyManagementId: number,
-    userId: number[]
-  ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    trx?: Knex.Transaction | null
+  ) {
+    let query = database('safety_management_users')
+      .where('safety_management_id', safetyManagementId)
+      .del();
+
+    if (trx) {
+      query = query.transacting(trx);
+    }
+
+    await query;
   }
 }

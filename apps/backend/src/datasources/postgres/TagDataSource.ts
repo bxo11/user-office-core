@@ -1,4 +1,5 @@
 import { GraphQLError } from 'graphql';
+import { Knex } from 'knex';
 import { injectable } from 'tsyringe';
 
 import { Tag } from '../../models/Tag';
@@ -39,20 +40,16 @@ export default class PostgresTagDataSource implements TagDataSource {
   ): Promise<boolean> {
     try {
       await database.transaction(async (trx) => {
-        await database('proposal_tags')
-          .where('proposal_pk', proposalPk)
-          .del()
-          .transacting(trx);
+        await this.removeProposalTags(proposalPk, trx);
 
         if (tagIds.length > 0) {
-          await database('proposal_tags')
-            .insert(
-              tagIds.map((tagId) => ({
-                tag_id: tagId,
-                proposal_pk: proposalPk,
-              }))
-            )
-            .transacting(trx);
+          await this.insertProposalTags(
+            tagIds.map((tagId) => ({
+              tag_id: tagId,
+              proposal_pk: proposalPk,
+            })),
+            trx
+          );
         }
       });
 
@@ -96,5 +93,30 @@ export default class PostgresTagDataSource implements TagDataSource {
     } else {
       return false;
     }
+  }
+
+  async insertProposalTags(
+    insertData: { tag_id: number; proposal_pk: number }[],
+    trx?: Knex.Transaction | null
+  ) {
+    let query = database('proposal_tags').insert(insertData);
+
+    if (trx) {
+      query = query.transacting(trx);
+    }
+
+    await query;
+  }
+
+  async removeProposalTags(proposalPk: number, trx?: Knex.Transaction | null) {
+    let query = database('proposal_tags')
+      .where('proposal_pk', proposalPk)
+      .del();
+
+    if (trx) {
+      query = query.transacting(trx);
+    }
+
+    await query;
   }
 }

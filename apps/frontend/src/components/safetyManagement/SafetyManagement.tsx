@@ -72,14 +72,14 @@ const SafetyManagement = ({
   };
 
   const safetyLevelOptions: Option[] = [
-    { text: 'Green', value: 0 },
+    { text: 'Green', value: 1 },
     {
       text: 'Yellow',
-      value: 1,
+      value: 2,
     },
     {
       text: 'Red',
-      value: 2,
+      value: 3,
     },
   ];
 
@@ -91,13 +91,6 @@ const SafetyManagement = ({
       <Formik
         initialValues={initialValues}
         onSubmit={async (values): Promise<void> => {
-          await api({
-            toastSuccessMessage: 'Saved tags!',
-          }).updateProposalTags({
-            proposalPk,
-            tagIds: values.proposalTags,
-          });
-
           if (safetyManagement) {
             await api({
               toastSuccessMessage: 'Saved safety management decision!',
@@ -105,6 +98,7 @@ const SafetyManagement = ({
               safetyManagementId: safetyManagement.id,
               safetyLevel: Number(values.safetyLevel),
               notes: values.notes,
+              tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
             });
           } else {
@@ -114,6 +108,7 @@ const SafetyManagement = ({
               proposalPk,
               safetyLevel: Number(values.safetyLevel),
               notes: values.notes,
+              tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
             });
           }

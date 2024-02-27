@@ -2,12 +2,14 @@ mutation createProposalSafetyManagement(
   $proposalPk: Int!
   $safetyLevel: Int!
   $notes: String
+  $tagIds: [Int!]
   $responsibleUserIds: [Int!]
 ) {
   createProposalSafetyManagement(
     proposalPk: $proposalPk
     safetyLevel: $safetyLevel
     notes: $notes
+    tagIds: $tagIds
     responsibleUserIds: $responsibleUserIds
   ) {
     ...safetyManagement

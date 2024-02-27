@@ -11,7 +11,7 @@ BEGIN
             );
 
       CREATE TABLE proposal_tags (
-            proposal_pk INTEGER NOT NULL REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
+            proposal_pk INTEGER NOT NULL REFERENCES safety_management (proposal_pk) ON DELETE CASCADE,
             tag_id INTEGER NOT NULL REFERENCES tags (tag_id) ON DELETE CASCADE, 
             PRIMARY KEY (proposal_pk, tag_id)
             );
