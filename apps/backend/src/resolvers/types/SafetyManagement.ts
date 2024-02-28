@@ -13,6 +13,7 @@ import { ResolverContext } from '../../context';
 import { isRejection } from '../../models/Rejection';
 import { SafetyManagement as SafetyManagementOrigin } from '../../models/SafetyManagement';
 import { BasicUserDetails } from './BasicUserDetails';
+import { Tag } from './Tag';
 
 @ObjectType()
 @Directive('@key(fields: "id")')
@@ -43,5 +44,16 @@ export class SafetyManagementResolver {
       );
 
     return isRejection(users) ? [] : users;
+  }
+
+  @FieldResolver(() => [Tag], { nullable: true })
+  async tags(
+    @Root() safetyManagement: SafetyManagement,
+    @Ctx() ctx: ResolverContext
+  ): Promise<Tag[] | null> {
+    return ctx.queries.tag.getProposalTags(
+      ctx.user,
+      safetyManagement.proposalPk
+    );
   }
 }

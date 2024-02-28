@@ -145,7 +145,7 @@ const ProposalFilterBar = ({
       <Grid item sm={3} xs={12}>
         <ProposalTagsFilter
           proposalTags={proposalTags?.data}
-          selectedProposalTags={filter.proposalTagIds}
+          selectedProposalTagIds={filter.proposalTagIds}
           onChange={(proposalTagIds) => {
             setProposalFilter({
               ...filter,

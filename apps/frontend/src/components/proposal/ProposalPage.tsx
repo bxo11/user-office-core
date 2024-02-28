@@ -66,7 +66,7 @@ export default function ProposalPage() {
       ? [urlQueryParams.proposalid]
       : undefined,
     questionFilter: questionaryFilterFromUrlQuery(urlQueryParams),
-    proposalTagIds: [],
+    proposalTagIds: urlQueryParams.proposalTagIds,
   });
   const { calls, loadingCalls } = useCallsData();
   const { instruments, loadingInstruments } = useInstrumentsData();

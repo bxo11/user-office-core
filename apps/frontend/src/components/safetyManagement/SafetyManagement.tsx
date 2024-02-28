@@ -24,13 +24,9 @@ import { Option } from 'utils/utilTypes';
 
 type SafetyManagementProps = {
   proposalPk: number;
-  proposalTags: Tag[];
 };
 
-const SafetyManagement = ({
-  proposalPk,
-  proposalTags,
-}: SafetyManagementProps) => {
+const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
   const { api } = useDataApiWithFeedback();
   const { tags, loadingTags } = useTagsData({ category: 'PROPOSAL' });
   const { safetyManagement, loadingSafetyManagement } = useSafetyManagementData(
@@ -53,7 +49,7 @@ const SafetyManagement = ({
     })) || [];
 
   const initialValues = {
-    proposalTags: proposalTags.map((tag) => tag.id),
+    proposalTags: safetyManagement?.tags?.map((tag) => tag.id) || [],
     safetyLevel: safetyManagement?.safetyLevel || '',
     notes: safetyManagement?.notes || '',
     responsibleUsers:
