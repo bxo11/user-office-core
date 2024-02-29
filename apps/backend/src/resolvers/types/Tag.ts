@@ -13,4 +13,7 @@ export class Tag implements Partial<TagOrigin> {
 
   @Field()
   public category: string;
+
+  @Field()
+  public color: string;
 }

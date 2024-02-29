@@ -4,6 +4,8 @@ mutation createProposalSafetyManagement(
   $notes: String
   $tagIds: [Int!]
   $responsibleUserIds: [Int!]
+  $status: String
+  $statusComment: String
 ) {
   createProposalSafetyManagement(
     proposalPk: $proposalPk
@@ -11,6 +13,8 @@ mutation createProposalSafetyManagement(
     notes: $notes
     tagIds: $tagIds
     responsibleUserIds: $responsibleUserIds
+    status: $status
+    statusComment: $statusComment
   ) {
     ...safetyManagement
   }

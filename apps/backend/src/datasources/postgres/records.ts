@@ -703,6 +703,7 @@ export interface TagRecord {
   readonly tag_id: number;
   readonly tag: string;
   readonly category: string;
+  readonly color: string;
 }
 
 export interface SafetyManagementRecord {
@@ -1285,7 +1286,7 @@ export const createRedeemCodeObject = (invite: RedeemCodeRecord) =>
   );
 
 export const createTagObject = (tag: TagRecord) => {
-  return new Tag(tag.tag_id, tag.tag, tag.category);
+  return new Tag(tag.tag_id, tag.tag, tag.category, tag.color);
 };
 
 export const createSafetyManagementObject = (

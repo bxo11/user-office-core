@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, Box, Chip, TextField, Typography } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import React, { Dispatch } from 'react';
 import { useQueryParams, DelimitedNumericArrayParam } from 'use-query-params';
@@ -27,7 +27,47 @@ const ProposalTagsFilter = ({
   const finalStatusOptions = proposalTags.map((key) => ({
     id: key.id,
     label: key.tag,
+    color: key.color,
   }));
+
+  //TODO: refactor colored chips and list items
+  const renderTags = (value, getTagProps) =>
+    value.map((val, index) => {
+      return (
+        <Chip
+          {...getTagProps({ index })}
+          label={val.label}
+          sx={{
+            backgroundColor: val.color,
+            color: 'dark-gray',
+            '&:hover': {
+              opacity: 0.7,
+            },
+          }}
+        />
+      );
+    });
+
+  const renderOption = (props: object, option) => {
+    return (
+      <Box
+        component="li"
+        {...props}
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        <Box
+          sx={{
+            width: 14,
+            height: 14,
+            borderRadius: '50%',
+            backgroundColor: option.color,
+            marginRight: 1,
+          }}
+        />
+        <Typography variant="body2">{option.label}</Typography>
+      </Box>
+    );
+  };
 
   return (
     <>
@@ -36,7 +76,6 @@ const ProposalTagsFilter = ({
           id="proposal-tag-select"
           // aria-labelledby="proposal-tag-select-label"
           onChange={(_event, newValue) => {
-            console.log('newValue', selectedProposalTagIds);
             const tags = newValue.map((tag) => tag.id);
             const show = tags.length > 0;
             setQuery({
@@ -47,6 +86,8 @@ const ProposalTagsFilter = ({
           renderInput={(params) => (
             <TextField {...params} label="Tags" margin="none" />
           )}
+          renderTags={renderTags}
+          renderOption={renderOption}
           options={finalStatusOptions}
           value={finalStatusOptions.filter((tag) =>
             selectedProposalTagIds?.includes(tag.id)

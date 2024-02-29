@@ -2,7 +2,8 @@ import { inject, injectable } from 'tsyringe';
 
 import { Tokens } from '../config/Tokens';
 import { SafetyManagementDataSource } from '../datasources/SafetyManagementDataSource';
-import { Authorized } from '../decorators';
+import { Authorized, EventBus } from '../decorators';
+import { Event } from '../events/event.enum';
 import { Rejection, rejection } from '../models/Rejection';
 import { Roles } from '../models/Role';
 import { SafetyManagement } from '../models/SafetyManagement';
@@ -17,6 +18,7 @@ export default class SafetyManagementMutations {
     private dataSource: SafetyManagementDataSource
   ) {}
 
+  @EventBus(Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED)
   @Authorized([Roles.USER_OFFICER])
   async updateProposalSafetyManagement(
     agent: UserWithRole | null,
@@ -31,6 +33,7 @@ export default class SafetyManagementMutations {
     });
   }
 
+  @EventBus(Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED)
   @Authorized([Roles.USER_OFFICER])
   async createProposalSafetyManagement(
     agent: UserWithRole | null,

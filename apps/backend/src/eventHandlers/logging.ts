@@ -134,6 +134,26 @@ export default function createHandler() {
             event.questionarystep.questionaryId.toString()
           );
           break;
+        case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED: {
+          const [inputArgs] = JSON.parse(event.inputArgs || '{}');
+
+          const description = inputArgs.status
+            ? `Changed status to: ${inputArgs.status}` +
+              (inputArgs.statusComment
+                ? ` with comment: ${inputArgs.statusComment}`
+                : '')
+            : '';
+
+          await eventLogsDataSource.set(
+            event.loggedInUserId,
+            event.type,
+            json,
+            event.safetymanagement.id.toString(),
+            description
+          );
+
+          break;
+        }
         default: {
           const changedObjectId =
             typeof (event as any)[event.key].id === 'number'

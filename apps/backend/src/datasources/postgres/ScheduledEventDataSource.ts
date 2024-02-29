@@ -73,6 +73,10 @@ export default class PostgresScheduledEventDataSource
               )
           );
         }
+        
+        if (filter?.proposalPk) {
+          query.where('proposal_pk', '=', filter.proposalPk);
+        }
       })
       .then((rows: ScheduledEventRecord[]) =>
         rows.map((row) => createScheduledEventObject(row))

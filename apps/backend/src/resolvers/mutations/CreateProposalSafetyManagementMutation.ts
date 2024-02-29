@@ -27,6 +27,12 @@ export class CreateProposalSafetyManagementArgs {
 
   @Field(() => [Int], { nullable: true })
   public responsibleUserIds?: number[];
+
+  @Field(() => String, { nullable: true })
+  public status?: string;
+
+  @Field(() => String, { nullable: true })
+  public statusComment?: string;
 }
 
 @Resolver()

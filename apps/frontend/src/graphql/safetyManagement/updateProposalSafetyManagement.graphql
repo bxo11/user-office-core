@@ -5,6 +5,8 @@ mutation updateProposalSafetyManagement(
   $safetyManagementId: Int!
   $tagIds: [Int!]
   $responsibleUserIds: [Int!]
+  $status: String
+  $statusComment: String
 ) {
   updateProposalSafetyManagement(
     proposalPk: $proposalPk
@@ -13,6 +15,8 @@ mutation updateProposalSafetyManagement(
     safetyManagementId: $safetyManagementId
     tagIds: $tagIds
     responsibleUserIds: $responsibleUserIds
+    status: $status
+    statusComment: $statusComment
   ) {
     ...safetyManagement
   }

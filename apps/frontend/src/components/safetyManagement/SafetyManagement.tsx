@@ -7,27 +7,33 @@ import {
   Typography,
 } from '@mui/material';
 import { Field, Form, Formik, useFormikContext } from 'formik';
-import { Select } from 'formik-mui';
+import { Select, TextField } from 'formik-mui';
 import React from 'react';
 import { Prompt } from 'react-router';
-
+import Paper from '@mui/material/Paper';
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
+import SuperMaterialTable from 'components/common/SuperMaterialTable';
 import Editor from 'components/common/TinyEditor';
 import UOLoader from 'components/common/UOLoader';
-import { Tag, UserRole } from 'generated/sdk';
+import { UserRole } from 'generated/sdk';
+import { useFormattedDateTime } from 'hooks/admin/useFormattedDateTime';
 import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
+import { useScheduledEvents } from 'hooks/scheduledEvent/useScheduledEvents';
 import { useTagsData } from 'hooks/tag/useTagsData';
 import { useUsersData } from 'hooks/user/useUsersData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
+import { tableIcons } from 'utils/materialIcons';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import { Option } from 'utils/utilTypes';
-
 type SafetyManagementProps = {
   proposalPk: number;
 };
 
 const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
   const { api } = useDataApiWithFeedback();
+  const { toFormattedDateTime } = useFormattedDateTime({
+    shouldUseTimeZone: true,
+  });
   const { tags, loadingTags } = useTagsData({ category: 'PROPOSAL' });
   const { safetyManagement, loadingSafetyManagement } = useSafetyManagementData(
     {
@@ -37,6 +43,11 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
   const { usersData, loadingUsersData } = useUsersData({
     userRole: UserRole.INSTRUMENT_SCIENTIST,
   });
+
+  const { scheduledEvents, setScheduledEvents, loadingEvents } =
+    useScheduledEvents({
+      filter: { proposalPk: proposalPk },
+    });
 
   if (loadingSafetyManagement) {
     return <UOLoader style={{ marginLeft: '50%', marginTop: '100px' }} />;
@@ -54,6 +65,8 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     notes: safetyManagement?.notes || '',
     responsibleUsers:
       safetyManagement?.responsibleUsers.map((user) => user.id) || [],
+    status: '',
+    statusComment: '',
   };
 
   const PromptIfDirty = () => {
@@ -79,6 +92,40 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     },
   ];
 
+  const statusOptions: Option[] = [
+    { text: 'ESRA requested', value: 'ESRA_REQUESTED' },
+    {
+      text: 'ESRA rejected',
+      value: 'ESRA_REJECTED',
+    },
+    {
+      text: 'ESRA approved',
+      value: 'ESRA_APPROVED',
+    },
+  ];
+
+  const columns = [
+    {
+      title: 'No.',
+      field: 'rowNumber',
+    },
+    {
+      title: 'Experiment start',
+      field: 'startsAtFormatted',
+    },
+    {
+      title: 'Experiment end',
+      field: 'endsAtFormatted',
+    },
+  ];
+
+  const scheduledEventsFormatted = scheduledEvents.map((evt, index) => ({
+    ...evt,
+    startsAtFormatted: toFormattedDateTime(evt.startsAt),
+    endsAtFormatted: toFormattedDateTime(evt.endsAt),
+    rowNumber: index + 1,
+  }));
+
   return (
     <div data-cy="safety-management-tab">
       <Typography variant="h6" component="h2" gutterBottom>
@@ -96,6 +143,8 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
               notes: values.notes,
               tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
+              status: values.status,
+              statusComment: values.statusComment,
             });
           } else {
             await api({
@@ -106,6 +155,8 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
               notes: values.notes,
               tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
+              status: values.status,
+              statusComment: values.statusComment,
             });
           }
         }}
@@ -114,7 +165,7 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
           <Form>
             <PromptIfDirty />
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 <FormikUIAutocomplete
                   name="proposalTags"
                   label="Proposal tags"
@@ -124,6 +175,15 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
                   items={tagOptions}
                   multiple
                   disabled={isSubmitting}
+                  InputProps={{ 'data-cy': 'proposal-tags' }}
+                  TagColors={tags.reduce(
+                    (acc: { [key: number]: string }, tag) => {
+                      acc[tag.id] = tag.color;
+
+                      return acc;
+                    },
+                    {}
+                  )}
                 />
               </Grid>
               <Grid item sm={6}>
@@ -133,14 +193,13 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
                     shrink={!!values.safetyLevel}
                     required
                   >
-                    Status
+                    Safety level
                   </InputLabel>
                   <Field
                     name="safetyLevel"
                     component={Select}
                     disabled={isSubmitting}
                     data-cy="safety-level"
-                    MenuProps={{ 'data-cy': 'safety-level-options' }}
                     required
                   >
                     {safetyLevelOptions.map(({ value, text }) => (
@@ -198,6 +257,64 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
                     ) {
                       setFieldValue('notes', content);
                     }
+                  }}
+                />
+              </Grid>
+              <Grid item sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel htmlFor="status" shrink={!!values.status}>
+                    Status
+                  </InputLabel>
+                  <Field
+                    name="status"
+                    component={Select}
+                    disabled={isSubmitting}
+                    data-cy="status"
+                  >
+                    {statusOptions.map(({ value, text }) => (
+                      <MenuItem value={value} key={value}>
+                        {text}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                </FormControl>
+              </Grid>
+              <Grid item sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel
+                    htmlFor="statusComment"
+                    shrink={!!values.statusComment}
+                  >
+                    Status comment
+                  </InputLabel>
+                  <Field
+                    name="statusComment"
+                    component={TextField}
+                    disabled={isSubmitting}
+                    data-cy="statusComment"
+                  ></Field>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <SuperMaterialTable
+                  data={scheduledEventsFormatted}
+                  setData={setScheduledEvents}
+                  icons={tableIcons}
+                  title={
+                    <Typography variant="h6" component="h2">
+                      Proposal experiments
+                    </Typography>
+                  }
+                  columns={columns}
+                  isLoading={loadingEvents}
+                  options={{
+                    search: false,
+                    paging: false,
+                  }}
+                  hasAccess={{
+                    create: false,
+                    remove: false,
+                    update: false,
                   }}
                 />
               </Grid>

@@ -1,3 +1,8 @@
 export class Tag {
-  constructor(public id: number, public tag: string, public category: string) {}
+  constructor(
+    public id: number,
+    public tag: string,
+    public category: string,
+    public color: string
+  ) {}
 }
