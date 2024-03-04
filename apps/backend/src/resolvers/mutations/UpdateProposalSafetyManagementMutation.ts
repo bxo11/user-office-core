@@ -9,6 +9,7 @@ import {
 } from 'type-graphql';
 
 import { ResolverContext } from '../../context';
+import { EsraStatus, SafetyLevel } from '../../models/SafetyManagement';
 import { SafetyManagement } from '../types/SafetyManagement';
 
 @ArgsType()
@@ -19,8 +20,8 @@ export class UpdateProposalSafetyManagementArgs {
   @Field(() => Int, { nullable: true })
   public proposalPk?: number;
 
-  @Field(() => Int, { nullable: true })
-  public safetyLevel?: number;
+  @Field(() => SafetyLevel, { nullable: true })
+  public safetyLevel?: SafetyLevel;
 
   @Field(() => String, { nullable: true })
   public notes?: string;
@@ -31,8 +32,8 @@ export class UpdateProposalSafetyManagementArgs {
   @Field(() => [Int], { nullable: true })
   public responsibleUserIds?: number[];
 
-  @Field(() => String, { nullable: true })
-  public status?: string;
+  @Field(() => EsraStatus, { nullable: true })
+  public esraStatus?: EsraStatus;
 
   @Field(() => String, { nullable: true })
   public statusComment?: string;

@@ -11,7 +11,11 @@ import {
 
 import { ResolverContext } from '../../context';
 import { isRejection } from '../../models/Rejection';
-import { SafetyManagement as SafetyManagementOrigin } from '../../models/SafetyManagement';
+import {
+  EsraStatus,
+  SafetyLevel,
+  SafetyManagement as SafetyManagementOrigin,
+} from '../../models/SafetyManagement';
 import { BasicUserDetails } from './BasicUserDetails';
 import { Tag } from './Tag';
 
@@ -24,8 +28,11 @@ export class SafetyManagement implements Partial<SafetyManagementOrigin> {
   @Field(() => Int)
   public proposalPk: number;
 
-  @Field(() => Int, { nullable: true })
-  public safetyLevel?: number;
+  @Field(() => EsraStatus, { nullable: true })
+  public esraStatus?: EsraStatus;
+
+  @Field(() => SafetyLevel, { nullable: true })
+  public safetyLevel?: SafetyLevel;
 
   @Field(() => String, { nullable: true })
   public notes?: string;

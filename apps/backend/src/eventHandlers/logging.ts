@@ -8,6 +8,7 @@ import { InstrumentDataSource } from '../datasources/InstrumentDataSource';
 import { ProposalSettingsDataSource } from '../datasources/ProposalSettingsDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
 import { Event } from '../events/event.enum';
+import { EsraStatus } from '../models/SafetyManagement';
 
 export default function createHandler() {
   const eventLogsDataSource = container.resolve<EventLogsDataSource>(
@@ -135,14 +136,17 @@ export default function createHandler() {
           );
           break;
         case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED: {
-          const [inputArgs] = JSON.parse(event.inputArgs || '{}');
+          const [{ esraStatus, statusComment }] = JSON.parse(
+            event.inputArgs || '{}'
+          );
 
-          const description = inputArgs.status
-            ? `Changed status to: ${inputArgs.status}` +
-              (inputArgs.statusComment
-                ? ` with comment: ${inputArgs.statusComment}`
-                : '')
-            : '';
+          let description = '';
+
+          if (esraStatus) {
+            description =
+              `Changed ESRA status to: ${EsraStatus[esraStatus]}` +
+              (statusComment ? ` with comment: ${statusComment}` : '');
+          }
 
           await eventLogsDataSource.set(
             event.loggedInUserId,

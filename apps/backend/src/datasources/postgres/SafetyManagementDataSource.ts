@@ -51,6 +51,7 @@ export default class PostgresSafetyManagementDataSource
             .insert({
               proposal_pk: args.proposalPk,
               safety_level: args.safetyLevel,
+              esra_status: args.esraStatus,
               notes: args.notes,
             })
             .into('safety_management')
@@ -98,6 +99,7 @@ export default class PostgresSafetyManagementDataSource
             .update({
               proposal_pk: args.proposalPk,
               safety_level: args.safetyLevel,
+              esra_status: args.esraStatus,
               notes: args.notes,
             })
             .where('safety_management_id', args.safetyManagementId)

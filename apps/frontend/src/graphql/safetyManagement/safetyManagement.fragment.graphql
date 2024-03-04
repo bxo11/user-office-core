@@ -1,6 +1,7 @@
 fragment safetyManagement on SafetyManagement {
   id
   proposalPk
+  esraStatus
   safetyLevel
   notes
   tags {

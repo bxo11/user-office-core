@@ -710,6 +710,7 @@ export interface SafetyManagementRecord {
   readonly safety_management_id: number;
   readonly proposal_pk: number;
   readonly safety_level: number;
+  readonly esra_status: number;
   readonly notes: string;
 }
 
@@ -1296,6 +1297,7 @@ export const createSafetyManagementObject = (
     safetyManagement.safety_management_id,
     safetyManagement.proposal_pk,
     safetyManagement.safety_level,
+    safetyManagement.esra_status,
     safetyManagement.notes
   );
 };

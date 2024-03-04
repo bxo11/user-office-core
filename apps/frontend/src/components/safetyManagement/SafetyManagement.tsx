@@ -10,12 +10,12 @@ import { Field, Form, Formik, useFormikContext } from 'formik';
 import { Select, TextField } from 'formik-mui';
 import React from 'react';
 import { Prompt } from 'react-router';
-import Paper from '@mui/material/Paper';
+
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
 import SuperMaterialTable from 'components/common/SuperMaterialTable';
 import Editor from 'components/common/TinyEditor';
 import UOLoader from 'components/common/UOLoader';
-import { UserRole } from 'generated/sdk';
+import { EsraStatus, SafetyLevel, UserRole } from 'generated/sdk';
 import { useFormattedDateTime } from 'hooks/admin/useFormattedDateTime';
 import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
 import { useScheduledEvents } from 'hooks/scheduledEvent/useScheduledEvents';
@@ -65,7 +65,7 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     notes: safetyManagement?.notes || '',
     responsibleUsers:
       safetyManagement?.responsibleUsers.map((user) => user.id) || [],
-    status: '',
+    esraStatus: safetyManagement?.esraStatus || '',
     statusComment: '',
   };
 
@@ -81,26 +81,26 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
   };
 
   const safetyLevelOptions: Option[] = [
-    { text: 'Green', value: 1 },
+    { text: 'Green', value: SafetyLevel.GREEN },
     {
       text: 'Yellow',
-      value: 2,
+      value: SafetyLevel.YELLOW,
     },
     {
       text: 'Red',
-      value: 3,
+      value: SafetyLevel.RED,
     },
   ];
 
   const statusOptions: Option[] = [
-    { text: 'ESRA requested', value: 'ESRA_REQUESTED' },
+    { text: 'ESRA requested', value: EsraStatus.ESRA_REQUESTED },
     {
       text: 'ESRA rejected',
-      value: 'ESRA_REJECTED',
+      value: EsraStatus.ESRA_REJECTED,
     },
     {
       text: 'ESRA approved',
-      value: 'ESRA_APPROVED',
+      value: EsraStatus.ESRA_APPROVED,
     },
   ];
 
@@ -139,23 +139,27 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
               toastSuccessMessage: 'Saved safety management decision!',
             }).updateProposalSafetyManagement({
               safetyManagementId: safetyManagement.id,
-              safetyLevel: Number(values.safetyLevel),
+              safetyLevel: values.safetyLevel as SafetyLevel,
               notes: values.notes,
               tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
-              status: values.status,
+              esraStatus:
+                values.esraStatus === safetyManagement.esraStatus
+                  ? undefined
+                  : (values.esraStatus as EsraStatus),
               statusComment: values.statusComment,
             });
+            safetyManagement.esraStatus = values.esraStatus as EsraStatus;
           } else {
             await api({
               toastSuccessMessage: 'Saved safety management decision!',
             }).createProposalSafetyManagement({
               proposalPk,
-              safetyLevel: Number(values.safetyLevel),
+              safetyLevel: values.safetyLevel as SafetyLevel,
               notes: values.notes,
               tagIds: values.proposalTags,
               responsibleUserIds: values.responsibleUsers,
-              status: values.status,
+              esraStatus: values.esraStatus as EsraStatus,
               statusComment: values.statusComment,
             });
           }
@@ -262,14 +266,14 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
               </Grid>
               <Grid item sm={6}>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel htmlFor="status" shrink={!!values.status}>
+                  <InputLabel htmlFor="esraStatus" shrink={!!values.esraStatus}>
                     Status
                   </InputLabel>
                   <Field
-                    name="status"
+                    name="esraStatus"
                     component={Select}
                     disabled={isSubmitting}
-                    data-cy="status"
+                    data-cy="esraStatus"
                   >
                     {statusOptions.map(({ value, text }) => (
                       <MenuItem value={value} key={value}>

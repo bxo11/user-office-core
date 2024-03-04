@@ -22,6 +22,7 @@ BEGIN
       safety_management_id serial PRIMARY KEY,
       proposal_pk INTEGER NOT NULL UNIQUE  REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
       safety_level INTEGER DEFAULT NULL,
+      esra_status INTEGER DEFAULT NULL,
       notes TEXT DEFAULT NULL
     );
 
