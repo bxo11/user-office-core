@@ -1,18 +1,8 @@
-import { Action, Column, MTableToolbar } from '@material-table/core';
-import Delete from '@mui/icons-material/Delete';
-import Email from '@mui/icons-material/Email';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import GridOnIcon from '@mui/icons-material/GridOn';
-import GroupWork from '@mui/icons-material/GroupWork';
+import { Column } from '@material-table/core';
 import Visibility from '@mui/icons-material/Visibility';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import i18n from 'i18n';
 import { TFunction } from 'i18next';
 import React, { useContext, useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
@@ -21,30 +11,18 @@ import { DecodedValueMap, SetQuery } from 'use-query-params';
 
 import CopyToClipboard from 'components/common/CopyToClipboard';
 import MaterialTable from 'components/common/DenseMaterialTable';
-import ListStatusIcon from 'components/common/icons/ListStatusIcon';
-import ScienceIcon from 'components/common/icons/ScienceIcon';
-import AssignProposalsToFap from 'components/fap/Proposals/AssignProposalsToFap';
-import AssignProposalsToInstrument from 'components/instrument/AssignProposalsToInstrument';
-import ProposalAttachmentDownload from 'components/proposal/ProposalAttachmentDownload';
 import ProposalReviewContent, {
   PROPOSAL_MODAL_TAB_NAMES,
 } from 'components/review/ProposalReviewContent';
 import ProposalReviewModal from 'components/review/ProposalReviewModal';
 import { FeatureContext } from 'context/FeatureContextProvider';
 import {
-  Call,
   Proposal,
   ProposalsFilter,
-  ProposalStatus,
   ProposalSelectionInput,
-  Fap,
-  InstrumentFragment,
   FeatureId,
 } from 'generated/sdk';
 import { useLocalStorage } from 'hooks/common/useLocalStorage';
-import { useDownloadPDFProposal } from 'hooks/proposal/useDownloadPDFProposal';
-import { useDownloadProposalAttachment } from 'hooks/proposal/useDownloadProposalAttachment';
-import { useDownloadXLSXProposal } from 'hooks/proposal/useDownloadXLSXProposal';
 import {
   ProposalViewData,
   useProposalsCoreData,
@@ -56,14 +34,9 @@ import {
   setSortDirectionOnSortColumn,
 } from 'utils/helperFunctions';
 import { tableIcons } from 'utils/materialIcons';
-import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import withConfirm, { WithConfirmType } from 'utils/withConfirm';
 
-// import CallSelectModalOnProposalsClone from './CallSelectModalOnProposalClone';
-// import ChangeProposalStatus from './ChangeProposalStatus';
-// import ProposalAttachmentDownload from './ProposalAttachmentDownload';
 import { ProposalUrlQueryParamsType } from './SafetyManagementPage';
-// import TableActionsDropdownMenu from './TableActionsDropdownMenu';
 
 type ProposalTableSafetyManagerProps = {
   proposalFilter: ProposalsFilter;
@@ -142,20 +115,10 @@ let columns: Column<ProposalViewData>[] = [
     sorting: false,
     emptyValue: '-',
   },
-  // {
-  //   title: 'Submitted',
-  //   field: 'submitted',
-  //   lookup: { true: 'Yes', false: 'No' },
-  // },
   {
     title: 'Status',
     field: 'statusName',
   },
-  // {
-  //   title: 'Notified',
-  //   field: 'notified',
-  //   lookup: { true: 'Yes', false: 'No' },
-  // },
   {
     title: 'Call',
     field: 'callShortCode',
@@ -167,96 +130,18 @@ const instrumentManagementColumns = (
 ) => [{ title: t('instrument'), field: 'instrumentName', emptyValue: '-' }];
 
 const PREFETCH_SIZE = 200;
-const SELECT_ALL_ACTION_TOOLTIP = 'select-all-prefetched-proposals';
-
-enum DownloadMenuOption {
-  PROPOSAL = 'Proposal(s)',
-  ATTACHMENT = 'Attachment(s)',
-}
-/**
- * NOTE: This toolbar "select all" option works only with all prefetched proposals. Currently that value is set to "PREFETCH_SIZE=200"
- * For example if we change the PREFETCH_SIZE to 100, that would mean that it can select up to 100 prefetched proposals at once.
- * For now this works but if we want to support option where we really select all proposals in the database this needs to be refactored a bit.
- */
-const ToolbarWithSelectAllPrefetched = (props: {
-  actions: Action<ProposalViewData>[];
-  selectedRows: ProposalViewData[];
-  data: ProposalViewData[];
-}) => {
-  const selectAllAction = props.actions.find(
-    (action) => action.hidden && action.tooltip === SELECT_ALL_ACTION_TOOLTIP
-  );
-  const tableHasData = !!props.data.length;
-  const allItemsSelectedOnThePage =
-    props.selectedRows.length === props.data.length;
-
-  return (
-    <div data-cy="select-all-toolbar">
-      <MTableToolbar {...props} />
-      {tableHasData && !!selectAllAction && allItemsSelectedOnThePage && (
-        <Box
-          textAlign="center"
-          padding={1}
-          bgcolor={(theme) => theme.palette.background.default}
-          data-cy="select-all-proposals"
-        >
-          {selectAllAction.iconProps?.hidden ? (
-            <>
-              All proposals are selected.
-              <Button
-                variant="text"
-                onClick={() => selectAllAction.onClick(null, props.data)}
-                data-cy="clear-all-selection"
-              >
-                Clear selection
-              </Button>
-            </>
-          ) : (
-            <>
-              All {props.selectedRows.length} proposals on this page are
-              selected.
-              <Button
-                variant="text"
-                onClick={() => selectAllAction.onClick(null, props.data)}
-                data-cy="select-all-prefetched-proposals"
-              >
-                Select all {selectAllAction.iconProps?.defaultValue} proposals
-              </Button>
-            </>
-          )}
-        </Box>
-      )}
-    </div>
-  );
-};
 
 const ProposalTableSafetyManager = ({
   proposalFilter,
   setProposalFilter,
   urlQueryParams,
   setUrlQueryParams,
-  confirm,
 }: ProposalTableSafetyManagerProps) => {
-  const [openAssignment, setOpenAssignment] = useState(false);
-  const [openInstrumentAssignment, setOpenInstrumentAssignment] =
-    useState(false);
-  const [openChangeProposalStatus, setOpenChangeProposalStatus] =
-    useState(false);
-  const [selectedProposals, setSelectedProposals] = useState<
-    ProposalSelectionType[]
-  >([]);
   const [tableData, setTableData] = useState<ProposalViewData[]>([]);
   const [preselectedProposalsData, setPreselectedProposalsData] = useState<
     ProposalViewData[]
   >([]);
-  const [openCallSelection, setOpenCallSelection] = useState(false);
-  const [actionsMenuAnchorElement, setActionsMenuAnchorElement] =
-    useState<null | HTMLElement>(null);
-  const [openDownloadAttachment, setOpenDownloadAttachment] = useState(false);
-  const downloadPDFProposal = useDownloadPDFProposal();
-  const downloadProposalAttachment = useDownloadProposalAttachment();
-  const downloadXLSXProposal = useDownloadXLSXProposal();
-  const { api } = useDataApiWithFeedback();
+
   const { t } = useTranslation();
   const [localStorageValue, setLocalStorageValue] = useLocalStorage<
     Column<ProposalViewData>[] | null
@@ -274,29 +159,9 @@ const ProposalTableSafetyManager = ({
     searchText: urlQueryParams?.search ?? undefined,
   });
 
-  const {
-    loading,
-    setProposalsData,
-    proposalsData,
-    totalCount,
-    fetchProposalsData,
-  } = useProposalsCoreData(proposalFilter, query);
-  const handleDownloadActionClick = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    setActionsMenuAnchorElement(event.currentTarget);
-  };
-  const handleClose = (selectedOption: string) => {
-    if (selectedOption === DownloadMenuOption.PROPOSAL) {
-      downloadPDFProposal(
-        selectedProposals?.map((proposal) => proposal.primaryKey),
-        selectedProposals?.[0].title
-      );
-    } else if (selectedOption === DownloadMenuOption.ATTACHMENT) {
-      setOpenDownloadAttachment(true);
-    }
-    setActionsMenuAnchorElement(null);
-  };
+  const { loading, setProposalsData, proposalsData, totalCount } =
+    useProposalsCoreData(proposalFilter, query);
+
   useEffect(() => {
     setPreselectedProposalsData(proposalsData);
   }, [proposalsData, query]);
@@ -319,71 +184,8 @@ const ProposalTableSafetyManager = ({
     };
   }, [currentPage, rowsPerPage, preselectedProposalsData, query]);
 
-  useEffect(() => {
-    if (urlQueryParams.selection.length > 0) {
-      const selection = new Set(urlQueryParams.selection);
-      setPreselectedProposalsData((preselectedProposalsData) => {
-        const selected: ProposalSelectionType[] = [];
-        const preselected = preselectedProposalsData.map((proposal) => {
-          if (selection.has(proposal.primaryKey.toString())) {
-            selected.push({
-              primaryKey: proposal.primaryKey,
-              callId: proposal.callId,
-              instrumentId: proposal.instrumentId,
-              fapId: proposal.fapId,
-              statusId: proposal.statusId,
-              workflowId: proposal.workflowId,
-              title: proposal.title,
-              proposalId: proposal.proposalId,
-            });
-          }
-
-          return {
-            ...proposal,
-            tableData: {
-              checked: selection.has(proposal.primaryKey.toString()),
-            },
-          };
-        });
-
-        setSelectedProposals(selected);
-
-        return preselected;
-      });
-    } else {
-      setPreselectedProposalsData((proposalsData) =>
-        proposalsData.map((proposal) => ({
-          ...proposal,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          tableData: { ...(proposal as any).tableData, checked: false },
-        }))
-      );
-      setSelectedProposals([]);
-    }
-  }, [proposalsData, urlQueryParams.selection]);
-
-  const GetAppIconComponent = (): JSX.Element => (
-    <GetAppIcon data-cy="download-proposals" />
-  );
-  const DeleteIcon = (): JSX.Element => <Delete />;
-  const GroupWorkIcon = (): JSX.Element => <GroupWork />;
-  const EmailIcon = (): JSX.Element => <Email />;
-  const ScienceIconComponent = (): JSX.Element => (
-    <ScienceIcon data-cy="assign-remove-instrument" />
-  );
-  const ChangeProposalStatusIcon = (): JSX.Element => (
-    <ListStatusIcon data-cy="change-proposal-status" />
-  );
-  const ExportIcon = (): JSX.Element => <GridOnIcon />;
-
-  const isTechnicalReviewEnabled = featureContext.featuresMap.get(
-    FeatureId.TECHNICAL_REVIEW
-  )?.isEnabled;
   const isInstrumentManagementEnabled = featureContext.featuresMap.get(
     FeatureId.INSTRUMENT_MANAGEMENT
-  )?.isEnabled;
-  const isFapEnabled = featureContext.featuresMap.get(
-    FeatureId.FAP_REVIEW
   )?.isEnabled;
 
   /**
@@ -425,193 +227,6 @@ const ProposalTableSafetyManager = ({
     }));
   }
 
-  // TODO: Maybe it will be good to make notifyProposal and deleteProposal bulk functions where we can sent array of proposal ids.
-  const emailProposals = (): void => {
-    selectedProposals.forEach(async (proposal) => {
-      await api({
-        toastSuccessMessage: 'Notification sent successfully',
-      }).notifyProposal({
-        proposalPk: proposal.primaryKey,
-      });
-
-      setProposalsData((proposalsData) =>
-        proposalsData.map((prop) => ({
-          ...prop,
-          notified: prop.primaryKey === proposal.primaryKey,
-        }))
-      );
-    });
-  };
-
-  const deleteProposals = (): void => {
-    selectedProposals.forEach(async (proposal) => {
-      await api().deleteProposal({ proposalPk: proposal.primaryKey });
-
-      setProposalsData((proposalsData) =>
-        proposalsData.filter(
-          ({ primaryKey }) => primaryKey !== proposal.primaryKey
-        )
-      );
-    });
-  };
-
-  const assignProposalsToFap = async (fap: Fap | null): Promise<void> => {
-    if (fap) {
-      await api({
-        toastSuccessMessage:
-          'Proposal/s assigned to the selected Fap successfully!',
-      }).assignProposalsToFap({
-        proposals: selectedProposals.map((selectedProposal) => ({
-          primaryKey: selectedProposal.primaryKey,
-          callId: selectedProposal.callId,
-        })),
-        fapId: fap.id,
-      });
-
-      // NOTE: We use a timeout because, when selecting and assigning lot of proposals at once, the workflow needs a little bit of time to update proposal statuses.
-      setTimeout(fetchProposalsData, 500);
-    } else {
-      await api({
-        toastSuccessMessage: 'Proposal/s removed from the Fap successfully!',
-      }).removeProposalsFromFap({
-        proposalPks: selectedProposals.map(
-          (selectedProposal) => selectedProposal.primaryKey
-        ),
-        fapId: selectedProposals[0].fapId as number,
-      });
-
-      setProposalsData((proposalsData) =>
-        proposalsData.map((prop) => {
-          if (
-            selectedProposals.find(
-              (selectedProposal) =>
-                selectedProposal.primaryKey === prop.primaryKey
-            )
-          ) {
-            prop.fapCode = null;
-            prop.fapId = null;
-          }
-
-          return prop;
-        })
-      );
-    }
-  };
-
-  const assignProposalsToInstrument = async (
-    instrument: InstrumentFragment | null
-  ): Promise<void> => {
-    if (instrument) {
-      await api({
-        toastSuccessMessage: `Proposal/s assigned to the selected ${i18n.format(
-          t('instrument'),
-          'lowercase'
-        )} successfully!`,
-      }).assignProposalsToInstrument({
-        proposals: selectedProposals.map((selectedProposal) => ({
-          primaryKey: selectedProposal.primaryKey,
-          callId: selectedProposal.callId,
-        })),
-        instrumentId: instrument.id,
-      });
-
-      // NOTE: We use a timeout because, when selecting and assigning lot of proposals at once, the workflow needs a little bit of time to update proposal statuses.
-      setTimeout(fetchProposalsData, 500);
-    } else {
-      await api({
-        toastSuccessMessage: `Proposal/s removed from the ${i18n.format(
-          t('instrument'),
-          'lowercase'
-        )} successfully!`,
-      }).removeProposalsFromInstrument({
-        proposalPks: selectedProposals.map(
-          (selectedProposal) => selectedProposal.primaryKey
-        ),
-      });
-
-      setProposalsData((proposalsData) =>
-        proposalsData.map((prop) => {
-          if (
-            selectedProposals.find(
-              (selectedProposal) =>
-                selectedProposal.primaryKey === prop.primaryKey
-            )
-          ) {
-            prop.instrumentName = null;
-            prop.instrumentId = null;
-          }
-
-          return prop;
-        })
-      );
-    }
-  };
-
-  const cloneProposalsToCall = async (call: Call) => {
-    if (!call?.id || !selectedProposals.length) {
-      return;
-    }
-
-    const proposalsToClonePk = selectedProposals.map(
-      (selectedProposal) => selectedProposal.primaryKey
-    );
-
-    const { cloneProposals } = await api({
-      toastSuccessMessage: 'Proposal/s cloned successfully',
-    }).cloneProposals({
-      callId: call.id,
-      proposalsToClonePk,
-    });
-
-    if (proposalsData && cloneProposals) {
-      const newClonedProposals = cloneProposals.map((resultProposal) =>
-        fromProposalToProposalView(resultProposal as Proposal)
-      );
-
-      const newProposalsData = [...newClonedProposals, ...proposalsData];
-
-      setProposalsData(newProposalsData);
-    }
-  };
-
-  const changeStatusOnProposals = async (status: ProposalStatus) => {
-    if (status?.id && selectedProposals?.length) {
-      const shouldAddPluralLetter = selectedProposals.length > 1 ? 's' : '';
-      await api({
-        toastSuccessMessage: `Proposal${shouldAddPluralLetter} status changed successfully!`,
-      }).changeProposalsStatus({
-        proposals: selectedProposals.map((selectedProposal) => ({
-          primaryKey: selectedProposal.primaryKey,
-          callId: selectedProposal.callId,
-          workflowId: selectedProposal.workflowId,
-        })),
-        statusId: status.id,
-      });
-      const shouldChangeSubmittedValue = status.shortCode === 'DRAFT';
-
-      setProposalsData((proposalsData) =>
-        proposalsData.map((prop) => {
-          if (
-            selectedProposals.find(
-              (selectedProposal) =>
-                selectedProposal.primaryKey === prop.primaryKey
-            )
-          ) {
-            prop.statusId = status.id;
-            prop.statusName = status.name;
-            prop.statusDescription = status.description;
-
-            if (shouldChangeSubmittedValue) {
-              prop.submitted = false;
-            }
-          }
-
-          return prop;
-        })
-      );
-    }
-  };
-
   columns = setSortDirectionOnSortColumn(
     columns,
     urlQueryParams.sortColumn,
@@ -649,108 +264,8 @@ const ProposalTableSafetyManager = ({
     })
   );
 
-  const shouldShowSelectAllAction =
-    totalCount <= PREFETCH_SIZE ? SELECT_ALL_ACTION_TOOLTIP : undefined;
-  const allPrefetchedProposalsSelected =
-    preselectedProposalsData.length === urlQueryParams.selection.length;
-
   return (
     <>
-      <Dialog
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={openAssignment}
-        onClose={(): void => setOpenAssignment(false)}
-      >
-        <DialogContent>
-          <AssignProposalsToFap
-            assignProposalsToFap={assignProposalsToFap}
-            close={(): void => setOpenAssignment(false)}
-            fapIds={selectedProposals.map(
-              (selectedProposal) => selectedProposal.fapId
-            )}
-          />
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={openInstrumentAssignment}
-        onClose={(): void => setOpenInstrumentAssignment(false)}
-      >
-        <DialogContent>
-          <AssignProposalsToInstrument
-            assignProposalsToInstrument={assignProposalsToInstrument}
-            close={(): void => setOpenInstrumentAssignment(false)}
-            callIds={selectedProposals.map(
-              (selectedProposal) => selectedProposal.callId
-            )}
-            instrumentIds={selectedProposals.map(
-              (selectedProposal) => selectedProposal.instrumentId
-            )}
-          />
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={openChangeProposalStatus}
-        onClose={(): void => setOpenChangeProposalStatus(false)}
-      >
-        <DialogContent>
-          {/* <ChangeProposalStatus
-            changeStatusOnProposals={changeStatusOnProposals}
-            close={(): void => setOpenChangeProposalStatus(false)}
-            selectedProposalStatuses={selectedProposals.map(
-              (selectedProposal) => selectedProposal.statusId
-            )}
-            allSelectedProposalsHaveInstrument={selectedProposals.every(
-              (selectedProposal) => selectedProposal.instrumentId
-            )}
-          /> */}
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={openCallSelection}
-        onClose={(): void => setOpenCallSelection(false)}
-      >
-        <DialogContent>
-          {/* <CallSelectModalOnProposalsClone
-            cloneProposalsToCall={cloneProposalsToCall}
-            close={(): void => setOpenCallSelection(false)}
-          /> */}
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={openDownloadAttachment}
-        onClose={(): void => setOpenDownloadAttachment(false)}
-      >
-        <DialogContent>
-          <ProposalAttachmentDownload
-            close={(): void => setOpenDownloadAttachment(false)}
-            referenceNumbers={selectedProposals.map(
-              (selectedProposal) => selectedProposal.proposalId
-            )}
-            downloadProposalAttachment={(
-              proposalIds: number[],
-              questionIds: string
-            ) =>
-              downloadProposalAttachment(proposalIds, {
-                questionIds,
-              })
-            }
-          />
-        </DialogContent>
-      </Dialog>
-      {/* <TableActionsDropdownMenu
-        event={actionsMenuAnchorElement}
-        handleClose={handleClose}
-        options={Object.values(DownloadMenuOption)}
-      /> */}
       <ProposalReviewModal
         title={`View proposal: ${proposalToReview?.title} (${proposalToReview?.proposalId})`}
         proposalReviewModalOpen={!!proposalToReview}
@@ -793,14 +308,6 @@ const ProposalTableSafetyManager = ({
         data={preselectedProposalDataWithIdAndRowActions}
         totalCount={totalCount}
         page={currentPage}
-        localization={{
-          toolbar: {
-            nRowsSelected: `${urlQueryParams.selection.length} row(s) selected`,
-          },
-        }}
-        components={{
-          Toolbar: ToolbarWithSelectAllPrefetched,
-        }}
         onPageChange={(page, pageSize) => {
           const newOffset =
             Math.floor((pageSize * page) / PREFETCH_SIZE) * PREFETCH_SIZE;
@@ -818,71 +325,6 @@ const ProposalTableSafetyManager = ({
           });
           setUrlQueryParams({ search: searchText ? searchText : undefined });
         }}
-        onSelectionChange={(selectedItems) => {
-          setUrlQueryParams((params) => ({
-            ...params,
-            selection:
-              selectedItems.length > 0
-                ? selectedItems.map((selectedItem) =>
-                    selectedItem.primaryKey.toString()
-                  )
-                : undefined,
-          }));
-        }}
-        // options={{
-        //   search: true,
-        //   searchText: urlQueryParams.search || undefined,
-        //   selection: true,
-        //   headerSelectionProps: {
-        //     inputProps: { 'aria-label': 'Select All Rows' },
-        //   },
-        //   debounceInterval: 600,
-        //   columnsButton: true,
-        //   selectionProps: (rowdata: ProposalViewData) => ({
-        //     inputProps: {
-        //       'aria-label': `${rowdata.title}-select`,
-        //     },
-        //   }),
-        // }}
-        // actions={[
-        //   {
-        //     icon: GetAppIconComponent,
-        //     tooltip: 'Download proposals',
-        //     onClick: (event): void => {},
-        //     position: 'toolbarOnSelect',
-        //   },
-        //   {
-        //     icon: GetAppIconComponent,
-        //     tooltip: 'Download proposals',
-        //     onClick: (event): void => {},
-        //     position: 'toolbarOnSelect',
-        //   },
-        //   {
-        //     tooltip: shouldShowSelectAllAction,
-        //     icon: DoneAllIcon,
-        //     hidden: true,
-        //     iconProps: {
-        //       hidden: allPrefetchedProposalsSelected,
-        //       defaultValue: preselectedProposalsData.length,
-        //     },
-        //     onClick: () => {
-        //       if (allPrefetchedProposalsSelected) {
-        //         setUrlQueryParams((params) => ({
-        //           ...params,
-        //           selection: undefined,
-        //         }));
-        //       } else {
-        //         setUrlQueryParams((params) => ({
-        //           ...params,
-        //           selection: preselectedProposalsData.map((proposal) =>
-        //             proposal.primaryKey.toString()
-        //           ),
-        //         }));
-        //       }
-        //     },
-        //     position: 'toolbarOnSelect',
-        //   },
-        // ]}
         onChangeColumnHidden={(columnChange) => {
           const proposalColumns = columns.map(
             (proposalColumn: Column<ProposalViewData>) => ({
