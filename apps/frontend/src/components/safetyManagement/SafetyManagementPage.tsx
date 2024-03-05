@@ -78,7 +78,7 @@ const SafetyManagementPage = () => {
     <StyledContainer>
       <StyledPaper>
         <ProposalFilterBar
-          calls={{ data: calls, isLoading: loadingCalls }}
+          calls={{ data: calls, isLoading: loadingCalls, sortByEndCall: true }}
           instruments={{
             data: instruments,
             isLoading: loadingInstruments,

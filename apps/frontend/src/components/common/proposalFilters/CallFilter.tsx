@@ -22,6 +22,7 @@ type CallFilterProps = {
   onChange?: Dispatch<number>;
   shouldShowAll?: boolean;
   callId: number | null;
+  sortByEndCall?: boolean;
 };
 
 const CallFilter = ({
@@ -30,6 +31,7 @@ const CallFilter = ({
   callId,
   onChange,
   shouldShowAll,
+  sortByEndCall,
 }: CallFilterProps) => {
   const classes = useStyles();
   const [, setQuery] = useQueryParams({
@@ -41,7 +43,9 @@ const CallFilter = ({
   }
 
   const sortedCalls = [...calls];
-  sortedCalls.sort((a, b) => a.shortCode.localeCompare(b.shortCode));
+  if (sortByEndCall) {
+    sortedCalls.sort((a, b) => (a.endCall > b.endCall ? 1 : -1));
+  } else sortedCalls.sort((a, b) => a.shortCode.localeCompare(b.shortCode));
 
   type CallOption = {
     id: number;

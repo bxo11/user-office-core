@@ -47,7 +47,7 @@ export const questionaryFilterFromUrlQuery = (
   }
 };
 type ProposalFilterBarProps = {
-  calls?: { data: Call[]; isLoading: boolean };
+  calls?: { data: Call[]; isLoading: boolean; sortByEndCall?: boolean };
   instruments?: { data: InstrumentFragment[]; isLoading: boolean };
   proposalStatuses?: { data: ProposalStatus[]; isLoading: boolean };
   proposalFinalStatuses?: { data: ProposalEndStatus[] };
@@ -92,6 +92,7 @@ const ProposalFilterBar = ({
               callId,
             });
           }}
+          sortByEndCall={calls?.sortByEndCall}
         />
       </Grid>
 

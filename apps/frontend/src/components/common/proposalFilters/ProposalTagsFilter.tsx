@@ -8,7 +8,7 @@ import { Tag } from 'generated/sdk';
 type ProposalTagsFilterProps = {
   proposalTags?: Tag[];
   onChange?: Dispatch<number[] | null>;
-  selectedProposalTagIds?: number[];
+  selectedProposalTagIds?: number[] | null;
 };
 
 const ProposalTagsFilter = ({
