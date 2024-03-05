@@ -152,7 +152,7 @@ export default function createHandler() {
             event.loggedInUserId,
             event.type,
             json,
-            event.safetymanagement.id.toString(),
+            event.safetymanagement.proposalPk.toString(),
             description
           );
 

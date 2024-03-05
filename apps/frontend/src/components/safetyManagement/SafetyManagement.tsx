@@ -65,7 +65,7 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     notes: safetyManagement?.notes || '',
     responsibleUsers:
       safetyManagement?.responsibleUsers.map((user) => user.id) || [],
-    esraStatus: safetyManagement?.esraStatus || '',
+    esraStatus: safetyManagement?.esraStatus,
     statusComment: '',
   };
 
