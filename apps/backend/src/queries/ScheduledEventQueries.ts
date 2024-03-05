@@ -15,7 +15,7 @@ export default class ScheduledEventQueries {
     public dataSource: ScheduledEventDataSource
   ) {}
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getScheduledEventsCore(
     user: UserWithRole | null,
     args: ScheduledEventsCoreArgs

@@ -89,7 +89,7 @@ export default class ProposalQueries {
     return this.dataSource.getProposals(filter, first, offset);
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getAllView(
     agent: UserWithRole | null,
     filter?: ProposalsFilter,

@@ -19,7 +19,7 @@ export default class SafetyManagementMutations {
   ) {}
 
   @EventBus(Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED)
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async updateProposalSafetyManagement(
     agent: UserWithRole | null,
     args: UpdateProposalSafetyManagementArgs
@@ -34,7 +34,7 @@ export default class SafetyManagementMutations {
   }
 
   @EventBus(Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED)
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async createProposalSafetyManagement(
     agent: UserWithRole | null,
     args: CreateProposalSafetyManagementArgs

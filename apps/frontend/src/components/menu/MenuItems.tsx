@@ -256,7 +256,6 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
           <ListItemText primary="Proposals" />
         </ListItem>
       </Tooltip>
-      <SafetyManagementMenuListItem />
       {isSchedulerEnabled && (
         <Tooltip title="Experiments">
           <ListItem
@@ -399,6 +398,12 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
     </div>
   );
 
+  const safetyManager = (
+    <div data-cy="safety-manager-menu-items">
+      <SafetyManagementMenuListItem />
+    </div>
+  );
+
   switch (currentRole) {
     case UserRole.USER:
       return user;
@@ -414,6 +419,8 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
       return sampleSafetyReviewer;
     case UserRole.INTERNAL_REVIEWER:
       return internalReviewer;
+    case UserRole.SAFETY_MANAGER:
+      return safetyManager;
     default:
       return null;
   }

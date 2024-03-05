@@ -19,7 +19,7 @@ export default class TagMutations {
     private dataSource: TagDataSource
   ) {}
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async updateProposalTags(
     agent: UserWithRole | null,
     args: UpdateProposalTagsArgs
@@ -35,7 +35,7 @@ export default class TagMutations {
       });
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async assignTagsToProposal(
     agent: UserWithRole | null,
     args: AssignTagsToProposalArgs
@@ -51,7 +51,7 @@ export default class TagMutations {
       });
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async removeTagsFromProposal(
     agent: UserWithRole | null,
     args: RemoveTagsFromProposalArgs

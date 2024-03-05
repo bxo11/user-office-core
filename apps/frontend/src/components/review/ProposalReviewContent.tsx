@@ -60,6 +60,7 @@ const ProposalReviewContent = ({
   const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
   const isInstrumentScientist = useCheckAccess([UserRole.INSTRUMENT_SCIENTIST]);
   const isInternalReviewer = useCheckAccess([UserRole.INTERNAL_REVIEWER]);
+  const isSafetyManager = useCheckAccess([UserRole.SAFETY_MANAGER]);
   const { reviewData, setReviewData } = useReviewData(reviewId, fapId);
   const { proposalData, setProposalData, loading } = useProposalData(
     proposalPk || reviewData?.proposal?.primaryKey
@@ -159,14 +160,14 @@ const ProposalReviewContent = ({
     />
   );
 
-  const EventLogsTab = isUserOfficer && (
+  const EventLogsTab = (isUserOfficer || isSafetyManager) && (
     <EventLogList
       changedObjectId={proposalData.primaryKey}
       eventType="PROPOSAL"
     />
   );
 
-  const SafetyManagementTab = isUserOfficer && (
+  const SafetyManagementTab = (isUserOfficer || isSafetyManager) && (
     <SafetyManagement proposalPk={proposalData.primaryKey} />
   );
 
