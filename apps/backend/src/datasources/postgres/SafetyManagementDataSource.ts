@@ -83,7 +83,7 @@ export default class PostgresSafetyManagementDataSource
 
       return createSafetyManagementObject(safetyManagement);
     } catch (error) {
-      throw new GraphQLError(`Could not create safety management ${error}`);
+      throw new GraphQLError('Could not create safety management');
     }
   }
 
@@ -143,7 +143,7 @@ export default class PostgresSafetyManagementDataSource
       return createSafetyManagementObject(safetyManagement);
     } catch (error) {
       throw new GraphQLError(
-        `Could not update safety management with id: ${args.safetyManagementId} ${error}`
+        `Could not update safety management with id: ${args.safetyManagementId}`
       );
     }
   }

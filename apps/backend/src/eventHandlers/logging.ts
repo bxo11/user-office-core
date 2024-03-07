@@ -135,18 +135,23 @@ export default function createHandler() {
             event.questionarystep.questionaryId.toString()
           );
           break;
-        case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED: {
-          const [{ esraStatus, statusComment }] = JSON.parse(
-            event.inputArgs || '{}'
+        case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED:
+          await eventLogsDataSource.set(
+            event.loggedInUserId,
+            event.type,
+            json,
+            event.safetymanagement.proposalPk.toString()
           );
+          break;
+        case Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED: {
+          const [{ statusComment }] = JSON.parse(event.inputArgs || '{}');
+          const { esraStatus } = event.safetymanagement;
 
-          let description = '';
-
-          if (esraStatus) {
-            description =
-              `Changed ESRA status to: ${EsraStatus[esraStatus]}` +
-              (statusComment ? ` with comment: ${statusComment}` : '');
+          if (!(esraStatus && statusComment)) {
+            return;
           }
+
+          const description = `Changed ESRA status to: ${EsraStatus[esraStatus]} with comment: ${statusComment}`;
 
           await eventLogsDataSource.set(
             event.loggedInUserId,

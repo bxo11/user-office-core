@@ -4,6 +4,11 @@ BEGIN
     IF register_patch('SafetyManagementFeature.sql', 'krzysztofklimczyk', 'Add a safety management feature', '2024-02-15') THEN
     BEGIN
 
+ALTER TABLE proposal_events
+    ADD COLUMN proposal_safety_management_decission_updated BOOLEAN DEFAULT FALSE,
+    ADD COLUMN proposal_safety_management_esra_status_updated BOOLEAN DEFAULT FALSE;
+
+
     CREATE TABLE tags (
             tag_id serial PRIMARY KEY,
             tag varchar(30) NOT NULL, 

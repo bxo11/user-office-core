@@ -10,9 +10,11 @@ import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
 import { ProposalEndStatus } from '../../models/Proposal';
+import { EsraStatus } from '../../models/SafetyManagement';
 import { UserRole } from '../../models/User';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
+import { json } from 'body-parser';
 
 export async function essEmailHandler(event: ApplicationEvent) {
   const mailService = container.resolve<MailService>(Tokens.MailService);
@@ -265,6 +267,59 @@ export async function essEmailHandler(event: ApplicationEvent) {
         });
 
       return;
+    }
+    case Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED: {
+      const { proposalPk, esraStatus } = event.safetymanagement;
+
+      const proposal = await proposalDataSource.get(proposalPk);
+      const proposer = await userDataSource.getUser(proposal?.proposerId ?? 0);
+      const participants = await userDataSource.getProposalUsers(proposalPk);
+
+      if (!esraStatus || !proposer) {
+        return;
+      }
+
+      let templateId = '';
+      switch (esraStatus) {
+        case EsraStatus.ESRA_APPROVED.valueOf():
+          templateId = 'esra-approved';
+          break;
+        case EsraStatus.ESRA_REJECTED.valueOf():
+          templateId = 'esra-rejected';
+          break;
+        default:
+          return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            //TODO: add data to email
+          },
+          recipients: [
+            { address: proposer.email },
+            ...participants.map((partipant) => {
+              return {
+                address: partipant.email,
+              };
+            }),
+          ],
+        })
+        .then(async (res) => {
+          logger.logInfo('Email sent on esra status change', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err) => {
+          logger.logError('Could not send email on esra status change', {
+            error: err.toString(),
+            event,
+          });
+        });
     }
   }
 }

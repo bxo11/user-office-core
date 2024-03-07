@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Field, Form, Formik, useFormikContext } from 'formik';
-import { Select, TextField } from 'formik-mui';
+import { Select } from 'formik-mui';
 import React from 'react';
 import { Prompt } from 'react-router';
 
@@ -15,7 +15,7 @@ import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
 import SuperMaterialTable from 'components/common/SuperMaterialTable';
 import Editor from 'components/common/TinyEditor';
 import UOLoader from 'components/common/UOLoader';
-import { EsraStatus, SafetyLevel, UserRole } from 'generated/sdk';
+import { SafetyLevel, UserRole } from 'generated/sdk';
 import { useFormattedDateTime } from 'hooks/admin/useFormattedDateTime';
 import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
 import { useScheduledEvents } from 'hooks/scheduledEvent/useScheduledEvents';
@@ -25,6 +25,8 @@ import { StyledButtonContainer } from 'styles/StyledComponents';
 import { tableIcons } from 'utils/materialIcons';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import { Option } from 'utils/utilTypes';
+
+import EsraStatusAssigment from './EsraStatusAssigment';
 type SafetyManagementProps = {
   proposalPk: number;
 };
@@ -35,11 +37,13 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     shouldUseTimeZone: true,
   });
   const { tags, loadingTags } = useTagsData({ category: 'PROPOSAL' });
-  const { safetyManagement, loadingSafetyManagement } = useSafetyManagementData(
-    {
-      proposalPk,
-    }
-  );
+  const {
+    safetyManagement,
+    loadingSafetyManagement,
+    setSafetyManagementWithLoading,
+  } = useSafetyManagementData({
+    proposalPk,
+  });
   const { usersData, loadingUsersData } = useUsersData({
     userRole: UserRole.INSTRUMENT_SCIENTIST,
   });
@@ -65,8 +69,6 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     notes: safetyManagement?.notes || '',
     responsibleUsers:
       safetyManagement?.responsibleUsers.map((user) => user.id) || [],
-    esraStatus: safetyManagement?.esraStatus,
-    statusComment: '',
   };
 
   const PromptIfDirty = () => {
@@ -89,18 +91,6 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
     {
       text: 'Red',
       value: SafetyLevel.RED,
-    },
-  ];
-
-  const statusOptions: Option[] = [
-    { text: 'ESRA requested', value: EsraStatus.ESRA_REQUESTED },
-    {
-      text: 'ESRA rejected',
-      value: EsraStatus.ESRA_REJECTED,
-    },
-    {
-      text: 'ESRA approved',
-      value: EsraStatus.ESRA_APPROVED,
     },
   ];
 
@@ -128,41 +118,38 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
 
   return (
     <div data-cy="safety-management-tab">
+      <EsraStatusAssigment safetyManagement={safetyManagement} />
       <Typography variant="h6" component="h2" gutterBottom>
         Safety management
       </Typography>
       <Formik
         initialValues={initialValues}
         onSubmit={async (values): Promise<void> => {
-          if (safetyManagement) {
-            await api({
-              toastSuccessMessage: 'Saved safety management decision!',
-            }).updateProposalSafetyManagement({
-              safetyManagementId: safetyManagement.id,
-              safetyLevel: values.safetyLevel as SafetyLevel,
-              notes: values.notes,
-              tagIds: values.proposalTags,
-              responsibleUserIds: values.responsibleUsers,
-              esraStatus:
-                values.esraStatus === safetyManagement.esraStatus
-                  ? undefined
-                  : (values.esraStatus as EsraStatus),
-              statusComment: values.statusComment,
-            });
-            safetyManagement.esraStatus = values.esraStatus as EsraStatus;
-          } else {
-            await api({
-              toastSuccessMessage: 'Saved safety management decision!',
-            }).createProposalSafetyManagement({
-              proposalPk,
-              safetyLevel: values.safetyLevel as SafetyLevel,
-              notes: values.notes,
-              tagIds: values.proposalTags,
-              responsibleUserIds: values.responsibleUsers,
-              esraStatus: values.esraStatus as EsraStatus,
-              statusComment: values.statusComment,
-            });
-          }
+          const result = safetyManagement
+            ? await api({
+                toastSuccessMessage: 'Saved safety management decision!',
+              })
+                .updateProposalSafetyManagement({
+                  safetyManagementId: safetyManagement.id,
+                  safetyLevel: values.safetyLevel as SafetyLevel,
+                  notes: values.notes,
+                  tagIds: values.proposalTags,
+                  responsibleUserIds: values.responsibleUsers,
+                })
+                .then((result) => result.updateProposalSafetyManagement)
+            : await api({
+                toastSuccessMessage: 'Saved safety management decision!',
+              })
+                .createProposalSafetyManagement({
+                  proposalPk,
+                  safetyLevel: values.safetyLevel as SafetyLevel,
+                  notes: values.notes,
+                  tagIds: values.proposalTags,
+                  responsibleUserIds: values.responsibleUsers,
+                })
+                .then((result) => result.createProposalSafetyManagement);
+
+          setSafetyManagementWithLoading(result);
         }}
       >
         {({ isSubmitting, setFieldValue, values }) => (
@@ -263,41 +250,6 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
                     }
                   }}
                 />
-              </Grid>
-              <Grid item sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel htmlFor="esraStatus" shrink={!!values.esraStatus}>
-                    Status
-                  </InputLabel>
-                  <Field
-                    name="esraStatus"
-                    component={Select}
-                    disabled={isSubmitting}
-                    data-cy="esraStatus"
-                  >
-                    {statusOptions.map(({ value, text }) => (
-                      <MenuItem value={value} key={value}>
-                        {text}
-                      </MenuItem>
-                    ))}
-                  </Field>
-                </FormControl>
-              </Grid>
-              <Grid item sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel
-                    htmlFor="statusComment"
-                    shrink={!!values.statusComment}
-                  >
-                    Status comment
-                  </InputLabel>
-                  <Field
-                    name="statusComment"
-                    component={TextField}
-                    disabled={isSubmitting}
-                    data-cy="statusComment"
-                  ></Field>
-                </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <SuperMaterialTable
