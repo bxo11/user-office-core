@@ -17,10 +17,10 @@ ALTER TABLE proposal_events
             );
 
     Insert into tags (tag, category, color) values ('Red', 'PROPOSAL', '#FF0000');
-    Insert into tags (tag, category, color) values ('Yellow', 'PROPOSAL', '##FFFF00');
-    Insert into tags (tag, category, color) values ('Green', 'PROPOSAL', '##00FF00');
-    Insert into tags (tag, category, color) values ('Gas Delivery', 'PROPOSAL', '##34d2eb');
-    Insert into tags (tag, category, color) values ('EST Ok', 'PROPOSAL', '##34ebbd');
+    Insert into tags (tag, category, color) values ('Yellow', 'PROPOSAL', '#FFFF00');
+    Insert into tags (tag, category, color) values ('Green', 'PROPOSAL', '#00FF00');
+    Insert into tags (tag, category, color) values ('Gas Delivery', 'PROPOSAL', '#34d2eb');
+    Insert into tags (tag, category, color) values ('EST Ok', 'PROPOSAL', '#34ebbd');
 
 
     CREATE TABLE safety_management (
