@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   Grid,
@@ -9,7 +10,7 @@ import {
 import { Field, Form, Formik, useFormikContext } from 'formik';
 import { Select } from 'formik-mui';
 import React from 'react';
-import { Prompt } from 'react-router';
+import { Prompt, useHistory } from 'react-router';
 
 import FormikUIAutocomplete from 'components/common/FormikUIAutocomplete';
 import SuperMaterialTable from 'components/common/SuperMaterialTable';
@@ -32,6 +33,7 @@ type SafetyManagementProps = {
 };
 
 const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
+  const history = useHistory();
   const { api } = useDataApiWithFeedback();
   const { toFormattedDateTime } = useFormattedDateTime({
     shouldUseTimeZone: true,
@@ -275,15 +277,24 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <StyledButtonContainer>
-                  <Button
-                    type="submit"
-                    data-cy="save-safety-management-decision"
-                    disabled={isSubmitting}
-                  >
-                    Save
-                  </Button>
-                </StyledButtonContainer>
+                <Box sx={{ '& button': { m: 1 } }}>
+                  <StyledButtonContainer>
+                    <Button
+                      onClick={() =>
+                        history.push(`/Esra/${safetyManagement?.proposalPk}`)
+                      }
+                    >
+                      Go to ESRA form
+                    </Button>
+                    <Button
+                      type="submit"
+                      data-cy="save-safety-management-decision"
+                      disabled={isSubmitting}
+                    >
+                      Save
+                    </Button>
+                  </StyledButtonContainer>
+                </Box>
               </Grid>
             </Grid>
           </Form>

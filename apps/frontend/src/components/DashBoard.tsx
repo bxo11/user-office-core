@@ -29,7 +29,6 @@ import MenuItems from './menu/MenuItems';
 import InformationModal from './pages/InformationModal';
 import OverviewPage from './pages/OverviewPage';
 import ProposalPage from './proposal/ProposalPage';
-import SafetyManagementPage from './safetyManagement/SafetyManagementPage';
 import TitledRoute from './TitledRoute';
 
 const CallPage = lazy(() => import('./call/CallPage'));
@@ -110,6 +109,10 @@ const ImportUnitsPage = lazy(() => import('./unit/ImportUnitsPage'));
 const PeoplePage = lazy(() => import('./user/PeoplePage'));
 const ProfilePage = lazy(() => import('./user/ProfilePage'));
 const UserPage = lazy(() => import('./user/UserPage'));
+const SafetyManagementPage = lazy(
+  () => import('./safetyManagement/SafetyManagementPage')
+);
+const EsraPage = lazy(() => import('./esra/EstraPage'));
 
 type BottomNavItemProps = {
   /** Content of the information modal. */
@@ -653,6 +656,12 @@ const Dashboard = () => {
               title="Declare Shipments"
               path="/DeclareShipments/:scheduledEventId"
               component={DeclareShipmentsPage}
+            />
+            <TitledRoute
+              setHeader={setHeader}
+              title="ESRA form"
+              path="/Esra/:proposalPk"
+              component={EsraPage}
             />
             <Can
               allowedRoles={[UserRole.USER_OFFICER]}
