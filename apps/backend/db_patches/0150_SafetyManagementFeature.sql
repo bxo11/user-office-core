@@ -6,7 +6,8 @@ BEGIN
 
 ALTER TABLE proposal_events
     ADD COLUMN proposal_safety_management_decission_updated BOOLEAN DEFAULT FALSE,
-    ADD COLUMN proposal_safety_management_esra_status_updated BOOLEAN DEFAULT FALSE;
+    ADD COLUMN proposal_safety_management_esra_status_updated BOOLEAN DEFAULT FALSE,
+    ADD COLUMN proposal_esra_requested BOOLEAN DEFAULT FALSE;
 
 
     CREATE TABLE tags (
@@ -28,7 +29,8 @@ ALTER TABLE proposal_events
       proposal_pk INTEGER NOT NULL UNIQUE  REFERENCES proposals (proposal_pk) ON DELETE CASCADE,
       safety_level INTEGER DEFAULT NULL,
       esra_status INTEGER DEFAULT NULL,
-      notes TEXT DEFAULT NULL
+      notes TEXT DEFAULT NULL,
+      esra_requested BOOLEAN NOT NULL DEFAULT FALSE
     );
 
     
@@ -48,13 +50,7 @@ ALTER TABLE proposal_events
 
 
 
-      CREATE TABLE safety_management_comments (
-            comment_id serial PRIMARY KEY,
-            safety_management_id INTEGER NOT NULL REFERENCES safety_management (safety_management_id) ON DELETE CASCADE,
-            comment TEXT NOT NULL,
-            user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
-            created_at TIMESTAMPTZ NOT NULL
-            );
+    
 
     END;
     END IF;

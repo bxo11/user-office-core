@@ -26,6 +26,17 @@ export default class PostgresSafetyManagementDataSource
     @inject(Tokens.TagDataSource) private tagDataSource: TagDataSource
   ) {}
 
+  get(safetyManagementId: number): Promise<SafetyManagement | null> {
+    return database
+      .select()
+      .from('safety_management')
+      .where('safety_management_id', safetyManagementId)
+      .first()
+      .then((s: SafetyManagementRecord | null) =>
+        s ? createSafetyManagementObject(s) : null
+      );
+  }
+
   async getProposalSafetyManagement(
     proposalPk: number
   ): Promise<SafetyManagement | null> {
@@ -101,6 +112,7 @@ export default class PostgresSafetyManagementDataSource
               safety_level: args.safetyLevel,
               esra_status: args.esraStatus,
               notes: args.notes,
+              esra_requested: args.esraRequested,
             })
             .where('safety_management_id', args.safetyManagementId)
             .transacting(trx)

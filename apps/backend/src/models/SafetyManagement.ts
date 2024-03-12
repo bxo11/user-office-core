@@ -16,6 +16,7 @@ export class SafetyManagement {
     public proposalPk: number,
     public safetyLevel: SafetyLevel | null,
     public esraStatus: EsraStatus | null,
-    public notes: string | null
+    public notes: string | null,
+    public esraRequested: boolean
   ) {}
 }

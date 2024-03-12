@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   FormControl,
@@ -14,10 +15,21 @@ import React from 'react';
 import { Prompt } from 'react-router';
 
 import Editor from 'components/common/TinyEditor';
+import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
+import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import withConfirm from 'utils/withConfirm';
 
-function DeclareEsra() {
+type DeclareEsraProps = {
+  proposalPk: number;
+};
+
+function DeclareEsra({ proposalPk }: DeclareEsraProps) {
+  const { api } = useDataApiWithFeedback();
+  const { safetyManagement } = useSafetyManagementData({
+    proposalPk,
+  });
+
   const PromptIfDirty = () => {
     const formik = useFormikContext();
 
@@ -41,7 +53,15 @@ function DeclareEsra() {
     labAccess: '',
   };
 
-  return (
+  const handleEsraRequest = async (): Promise<void> => {
+    if (safetyManagement) {
+      await api({
+        toastSuccessMessage: 'Esra requested successfully!',
+      }).requestEsra({ safetyManagementId: safetyManagement.id });
+    }
+  };
+
+  return safetyManagement ? (
     <>
       <Typography variant="h6" component="h2" sx={{ marginBottom: 3 }}>
         Declare ESRA
@@ -268,21 +288,30 @@ function DeclareEsra() {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <StyledButtonContainer>
-                  <Button
-                    type="submit"
-                    data-cy="save-safety-management-decision"
-                    disabled={isSubmitting}
-                  >
-                    Save
-                  </Button>
-                </StyledButtonContainer>
+                <Box sx={{ '& button': { m: 1 } }}>
+                  <StyledButtonContainer>
+                    <Button onClick={handleEsraRequest} disabled={isSubmitting}>
+                      Request ESRA
+                    </Button>
+                    <Button
+                      type="submit"
+                      data-cy="save-safety-management-decision"
+                      disabled={isSubmitting}
+                    >
+                      Save
+                    </Button>
+                  </StyledButtonContainer>
+                </Box>
               </Grid>
             </Grid>
           </Form>
         )}
       </Formik>
     </>
+  ) : (
+    <Typography variant="h6" component="h2" sx={{ marginBottom: 3 }}>
+      Safety management is not available for this proposal
+    </Typography>
   );
 }
 

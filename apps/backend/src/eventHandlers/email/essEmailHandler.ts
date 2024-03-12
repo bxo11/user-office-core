@@ -6,6 +6,7 @@ import { CallDataSource } from '../../datasources/CallDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
 import { ProposalDataSource } from '../../datasources/ProposalDataSource';
 import { RedeemCodesDataSource } from '../../datasources/RedeemCodesDataSource';
+import { SafetyManagementDataSource } from '../../datasources/SafetyManagementDataSource';
 import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
@@ -14,7 +15,6 @@ import { EsraStatus } from '../../models/SafetyManagement';
 import { UserRole } from '../../models/User';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
-import { json } from 'body-parser';
 
 export async function essEmailHandler(event: ApplicationEvent) {
   const mailService = container.resolve<MailService>(Tokens.MailService);
@@ -31,6 +31,10 @@ export async function essEmailHandler(event: ApplicationEvent) {
   const callDataSource = container.resolve<CallDataSource>(
     Tokens.CallDataSource
   );
+  const safetyManagementDataSource =
+    container.resolve<SafetyManagementDataSource>(
+      Tokens.SafetyManagementDataSource
+    );
 
   if (event.isRejection) {
     return;
@@ -316,6 +320,44 @@ export async function essEmailHandler(event: ApplicationEvent) {
         })
         .catch((err) => {
           logger.logError('Could not send email on esra status change', {
+            error: err.toString(),
+            event,
+          });
+        });
+    }
+    case Event.PROPOSAL_ESRA_REQUESTED: {
+      const { id } = event.safetymanagement;
+      const respomsibleSafetyManagers =
+        await safetyManagementDataSource.getResponsibleUsers(id);
+
+      if (respomsibleSafetyManagers.length === 0) {
+        return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: 'esra-requested',
+          },
+          substitution_data: {
+            //TODO: add data to email
+          },
+          recipients: [
+            ...respomsibleSafetyManagers.map((partipant) => {
+              return {
+                address: partipant.email,
+              };
+            }),
+          ],
+        })
+        .then(async (res) => {
+          logger.logInfo('Email sent on esra requested', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err) => {
+          logger.logError('Could not send email on esra requested', {
             error: err.toString(),
             event,
           });

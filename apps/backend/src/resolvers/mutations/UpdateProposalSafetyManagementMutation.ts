@@ -37,6 +37,9 @@ export class UpdateProposalSafetyManagementArgs {
 
   @Field(() => String, { nullable: true })
   public statusComment?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  public esraRequested?: boolean;
 }
 
 @Resolver()

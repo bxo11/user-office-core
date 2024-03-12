@@ -300,6 +300,11 @@ interface ProposalSafetyManagementEsraStatusUpdated extends GeneralEvent {
   safetymanagement: SafetyManagement;
 }
 
+interface EsraRequested extends GeneralEvent {
+  type: Event.PROPOSAL_ESRA_REQUESTED;
+  safetymanagement: SafetyManagement;
+}
+
 export type ApplicationEvent =
   | ProposalAcceptedEvent
   | ProposalUpdatedEvent
@@ -355,4 +360,5 @@ export type ApplicationEvent =
   | FapReviewerNotified
   | ProposalStatusActionExecutedEvent
   | ProposalSafetyManagementDecisionUpdated
-  | ProposalSafetyManagementEsraStatusUpdated;
+  | ProposalSafetyManagementEsraStatusUpdated
+  | EsraRequested;

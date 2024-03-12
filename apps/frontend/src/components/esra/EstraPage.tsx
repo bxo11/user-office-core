@@ -15,7 +15,7 @@ export default function EsraPage() {
   return (
     <StyledContainer>
       <StyledPaper>
-        <DeclareEsra />
+        <DeclareEsra proposalPk={+proposalPk} />
       </StyledPaper>
     </StyledContainer>
   );

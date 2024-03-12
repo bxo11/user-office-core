@@ -712,6 +712,7 @@ export interface SafetyManagementRecord {
   readonly safety_level: number;
   readonly esra_status: number;
   readonly notes: string;
+  readonly esra_requested: boolean;
 }
 
 export const createTopicObject = (record: TopicRecord) => {
@@ -1298,6 +1299,7 @@ export const createSafetyManagementObject = (
     safetyManagement.proposal_pk,
     safetyManagement.safety_level,
     safetyManagement.esra_status,
-    safetyManagement.notes
+    safetyManagement.notes,
+    safetyManagement.esra_requested
   );
 };

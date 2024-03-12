@@ -6,9 +6,10 @@ import { Authorized, EventBus } from '../decorators';
 import { Event } from '../events/event.enum';
 import { Rejection, rejection } from '../models/Rejection';
 import { Roles } from '../models/Role';
-import { SafetyManagement } from '../models/SafetyManagement';
+import { EsraStatus, SafetyManagement } from '../models/SafetyManagement';
 import { UserWithRole } from '../models/User';
 import { CreateProposalSafetyManagementArgs } from '../resolvers/mutations/CreateProposalSafetyManagementMutation';
+import { RequestEsraArgs } from '../resolvers/mutations/RequestEsraMutation';
 import { UpdateEsraStatusMutationArgs } from '../resolvers/mutations/UpdateEsraStatusMutation';
 import { UpdateProposalSafetyManagementArgs } from '../resolvers/mutations/UpdateProposalSafetyManagementMutation';
 
@@ -60,7 +61,10 @@ export default class SafetyManagementMutations {
     );
 
     if (!safetyManagement) {
-      return rejection('Safety management not found', { agent, args });
+      return rejection('Safety management not found for proposal', {
+        agent,
+        args,
+      });
     }
 
     if (safetyManagement.esraStatus === args.esraStatus) {
@@ -81,6 +85,42 @@ export default class SafetyManagementMutations {
           { agent, args },
           error
         );
+      });
+  }
+
+  @EventBus(Event.PROPOSAL_ESRA_REQUESTED)
+  @Authorized()
+  async requestEsra(
+    agent: UserWithRole | null,
+    args: RequestEsraArgs
+  ): Promise<SafetyManagement | Rejection> {
+    const safetyManagement = await this.dataSource.get(args.safetyManagementId);
+
+    if (!safetyManagement) {
+      return rejection('Safety management not found for proposal', {
+        agent,
+        args,
+      });
+    }
+
+    if (
+      safetyManagement.esraRequested ||
+      safetyManagement.esraStatus !== null
+    ) {
+      return rejection('ESRA is already requested or status is already set', {
+        agent,
+        args,
+      });
+    }
+
+    return this.dataSource
+      .update({
+        safetyManagementId: args.safetyManagementId,
+        esraStatus: EsraStatus.ESRA_REQUESTED,
+        esraRequested: true,
+      })
+      .catch((error) => {
+        return rejection('Could not request ESRA', { agent, args }, error);
       });
   }
 }

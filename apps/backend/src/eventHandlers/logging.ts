@@ -136,6 +136,7 @@ export default function createHandler() {
           );
           break;
         case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED:
+        case Event.PROPOSAL_ESRA_REQUESTED:
           await eventLogsDataSource.set(
             event.loggedInUserId,
             event.type,

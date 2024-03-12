@@ -4,6 +4,7 @@ import { CreateProposalSafetyManagementArgs } from '../resolvers/mutations/Creat
 import { UpdateProposalSafetyManagementArgs } from '../resolvers/mutations/UpdateProposalSafetyManagementMutation';
 
 export interface SafetyManagementDataSource {
+  get(safetyManagementId: number): Promise<SafetyManagement | null>;
   getProposalSafetyManagement(
     proposalPk: number
   ): Promise<SafetyManagement | null>;
