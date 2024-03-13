@@ -2,6 +2,7 @@ import { Call } from '../models/Call';
 import { Fap } from '../models/Fap';
 import { FapMeetingDecision } from '../models/FapMeetingDecision';
 import { Instrument, InstrumentHasProposals } from '../models/Instrument';
+import { InternalReview } from '../models/InternalReview';
 import { Proposal, ProposalPks, Proposals } from '../models/Proposal';
 import { QuestionaryStep } from '../models/Questionary';
 import { Review } from '../models/Review';
@@ -289,6 +290,11 @@ interface FapReviewerNotified extends GeneralEvent {
   fapReview: Review;
 }
 
+interface InternalReviewCreatedEvent extends GeneralEvent {
+  type: Event.INTERNAL_REVIEW_CREATED;
+  internalreview: InternalReview;
+}
+
 export type ApplicationEvent =
   | ProposalAcceptedEvent
   | ProposalUpdatedEvent
@@ -342,4 +348,5 @@ export type ApplicationEvent =
   | InstrumentUpdatedEvent
   | InstrumentDeletedEvent
   | FapReviewerNotified
-  | ProposalStatusActionExecutedEvent;
+  | ProposalStatusActionExecutedEvent
+  | InternalReviewCreatedEvent;
