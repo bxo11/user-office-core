@@ -15,4 +15,16 @@ export class SafetyManagementQuery {
       proposalPk
     );
   }
+
+  @Query(() => Int, { nullable: true })
+  proposalSafetyManagementId(
+    @Arg('proposalPk', () => Int)
+    proposalPk: number,
+    @Ctx() context: ResolverContext
+  ) {
+    return context.queries.safetyManagement.getProposalSafetyManagementId(
+      context.user,
+      proposalPk
+    );
+  }
 }

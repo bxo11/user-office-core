@@ -15,7 +15,7 @@ import React from 'react';
 import { Prompt } from 'react-router';
 
 import Editor from 'components/common/TinyEditor';
-import { useSafetyManagementData } from 'hooks/safetyManagement/useSafetyManagementData';
+import { useSafetyManagementIdData } from 'hooks/safetyManagement/useSafetyManagementIdData';
 import { StyledButtonContainer } from 'styles/StyledComponents';
 import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import withConfirm from 'utils/withConfirm';
@@ -26,9 +26,7 @@ type DeclareEsraProps = {
 
 function DeclareEsra({ proposalPk }: DeclareEsraProps) {
   const { api } = useDataApiWithFeedback();
-  const { safetyManagement } = useSafetyManagementData({
-    proposalPk,
-  });
+  const { safetyManagementId } = useSafetyManagementIdData(proposalPk);
 
   const PromptIfDirty = () => {
     const formik = useFormikContext();
@@ -54,14 +52,14 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
   };
 
   const handleEsraRequest = async (): Promise<void> => {
-    if (safetyManagement) {
+    if (safetyManagementId) {
       await api({
         toastSuccessMessage: 'Esra requested successfully!',
-      }).requestEsra({ safetyManagementId: safetyManagement.id });
+      }).requestEsra({ safetyManagementId });
     }
   };
 
-  return safetyManagement ? (
+  return safetyManagementId ? (
     <>
       <Typography variant="h6" component="h2" sx={{ marginBottom: 3 }}>
         Declare ESRA

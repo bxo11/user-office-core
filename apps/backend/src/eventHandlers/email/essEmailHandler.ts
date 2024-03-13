@@ -273,13 +273,15 @@ export async function essEmailHandler(event: ApplicationEvent) {
       return;
     }
     case Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED: {
+      const [{ statusComment }] = JSON.parse(event.inputArgs || '{}');
+
       const { proposalPk, esraStatus } = event.safetymanagement;
 
       const proposal = await proposalDataSource.get(proposalPk);
       const proposer = await userDataSource.getUser(proposal?.proposerId ?? 0);
       const participants = await userDataSource.getProposalUsers(proposalPk);
 
-      if (!esraStatus || !proposer) {
+      if (!esraStatus || !proposer || !proposal) {
         return;
       }
 
@@ -301,7 +303,10 @@ export async function essEmailHandler(event: ApplicationEvent) {
             template_id: templateId,
           },
           substitution_data: {
-            //TODO: add data to email
+            proposalNumber: proposal.proposalId,
+            proposalTitle: proposal.title,
+            esraStatus: EsraStatus[esraStatus],
+            esraComment: statusComment,
           },
           recipients: [
             { address: proposer.email },
@@ -326,11 +331,12 @@ export async function essEmailHandler(event: ApplicationEvent) {
         });
     }
     case Event.PROPOSAL_ESRA_REQUESTED: {
-      const { id } = event.safetymanagement;
+      const { id, proposalPk } = event.safetymanagement;
       const respomsibleSafetyManagers =
         await safetyManagementDataSource.getResponsibleUsers(id);
+      const proposal = await proposalDataSource.get(proposalPk);
 
-      if (respomsibleSafetyManagers.length === 0) {
+      if (respomsibleSafetyManagers.length === 0 || !proposal) {
         return;
       }
 
@@ -340,7 +346,8 @@ export async function essEmailHandler(event: ApplicationEvent) {
             template_id: 'esra-requested',
           },
           substitution_data: {
-            //TODO: add data to email
+            proposalNumber: proposal.proposalId,
+            proposalTitle: proposal.title,
           },
           recipients: [
             ...respomsibleSafetyManagers.map((partipant) => {

@@ -1,5 +1,3 @@
-query getProposalSafetyManagement($proposalPk: Int!) {
-  proposalSafetyManagement(proposalPk: $proposalPk) {
-    ...safetyManagement
-  }
+query getProposalSafetyManagementId($proposalPk: Int!) {
+  proposalSafetyManagementId(proposalPk: $proposalPk)
 }

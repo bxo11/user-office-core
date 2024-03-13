@@ -1,5 +1,6 @@
-import { inject, injectable } from 'tsyringe';
+import { container, inject, injectable } from 'tsyringe';
 
+import { ProposalAuthorization } from '../auth/ProposalAuthorization';
 import { Tokens } from '../config/Tokens';
 import { SafetyManagementDataSource } from '../datasources/SafetyManagementDataSource';
 import { Authorized, EventBus } from '../decorators';
@@ -15,6 +16,8 @@ import { UpdateProposalSafetyManagementArgs } from '../resolvers/mutations/Updat
 
 @injectable()
 export default class SafetyManagementMutations {
+  private proposalAuth = container.resolve(ProposalAuthorization);
+
   constructor(
     @inject(Tokens.SafetyManagementDataSource)
     private dataSource: SafetyManagementDataSource
@@ -98,6 +101,18 @@ export default class SafetyManagementMutations {
 
     if (!safetyManagement) {
       return rejection('Safety management not found for proposal', {
+        agent,
+        args,
+      });
+    }
+
+    if (
+      !(await this.proposalAuth.isMemberOfProposal(
+        agent,
+        safetyManagement.proposalPk
+      ))
+    ) {
+      return rejection('User do not have access to request ESRA', {
         agent,
         args,
       });
