@@ -41,6 +41,7 @@ export function useInstrumentsData(callIds?: number[]): {
         UserRole.FAP_CHAIR,
         UserRole.FAP_SECRETARY,
         UserRole.USER,
+        UserRole.SAFETY_MANAGER,
       ].includes(currentRole)
     ) {
       api()

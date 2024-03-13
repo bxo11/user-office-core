@@ -41,8 +41,8 @@ const assignmentColumns = [
     field: 'lastname',
   },
   {
-    title: 'Organisation',
-    field: 'organisation',
+    title: 'Institution',
+    field: 'institution',
   },
 ];
 
@@ -53,8 +53,6 @@ const AssignedParticipantsTable = ({
   const classes = useStyles();
   const { api } = useDataApiWithFeedback();
   const { t } = useTranslation();
-
-  const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
 
   const removeAssignedParticipantsHandle = async (participantId: number) => {
     await api({
@@ -77,16 +75,10 @@ const AssignedParticipantsTable = ({
         columns={assignmentColumns}
         title={`Assigned ${i18n.format(t('call review meeting'), 'plural')}`}
         data={reviewMeeting.participants}
-        editable={
-          isUserOfficer
-            ? {
-                onRowDelete: (
-                  rowAssignmentsData: BasicUserDetails
-                ): Promise<void> =>
-                  removeAssignedParticipantsHandle(rowAssignmentsData.id),
-              }
-            : {}
-        }
+        editable={{
+          onRowDelete: (rowAssignmentsData: BasicUserDetails): Promise<void> =>
+            removeAssignedParticipantsHandle(rowAssignmentsData.id),
+        }}
         options={{
           search: false,
           paging: false,

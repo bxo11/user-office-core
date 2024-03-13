@@ -168,7 +168,7 @@ const ProposalsMenuListItem = () => {
   );
 };
 
-const TeamMeetingsMenuListItem = () => {
+const ReviewMeetingsMenuListItem = () => {
   return (
     <Tooltip title="Call review meetings">
       <ListItem component={NavLink} to="/CallReviewMeetings" button>
@@ -271,7 +271,7 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
           </ListItem>
         </Tooltip>
       )}
-      {TeamMeetingsMenuListItem()}
+      <ReviewMeetingsMenuListItem />
       <Tooltip title="Calls">
         <ListItem component={NavLink} to="/Calls" button>
           <ListItemIcon>
@@ -400,6 +400,12 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
     </div>
   );
 
+  const safetyManager = (
+    <div data-cy="safety-manager-menu-items">
+      <ReviewMeetingsMenuListItem />
+    </div>
+  );
+
   switch (currentRole) {
     case UserRole.USER:
       return user;
@@ -415,6 +421,8 @@ const MenuItems = ({ currentRole, callsData }: MenuItemsProps) => {
       return sampleSafetyReviewer;
     case UserRole.INTERNAL_REVIEWER:
       return internalReviewer;
+    case UserRole.SAFETY_MANAGER:
+      return safetyManager;
     default:
       return null;
   }

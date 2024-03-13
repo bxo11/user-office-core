@@ -17,12 +17,12 @@ export default class ReviewMeetingQueries {
     public dataSource: ReviewMeetingDataSource
   ) {}
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getReviewMeetings(_agent: UserWithRole | null) {
     return this.dataSource.getReviewMeetings();
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getReviewMeeting(_agent: UserWithRole | null, reviewMeetingId: number) {
     return this.dataSource.getReviewMeeting(reviewMeetingId);
   }

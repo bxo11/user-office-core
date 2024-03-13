@@ -8,6 +8,7 @@ import { MailService } from '../eventHandlers/MailService/MailService';
 import { Event } from '../events/event.enum';
 import { Rejection, rejection } from '../models/Rejection';
 import { ReviewMeeting } from '../models/ReviewMeeting';
+import { Roles } from '../models/Role';
 import { UserWithRole } from '../models/User';
 import {
   AssignUsersToReviewMeetingArgs,
@@ -27,7 +28,7 @@ export default class ReviewMeetingMutations {
     public emailService: MailService
   ) {}
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async create(
     user: UserWithRole | null,
     args: CreateReviewMeetingArgs
@@ -59,7 +60,7 @@ export default class ReviewMeetingMutations {
     }
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async update(
     user: UserWithRole | null,
     args: UpdateReviewMeetingArgs
@@ -100,7 +101,7 @@ export default class ReviewMeetingMutations {
     });
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async delete(
     user: UserWithRole | null,
     reviewMeetingId: number
@@ -114,7 +115,7 @@ export default class ReviewMeetingMutations {
     });
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async assignParticipants(
     agent: UserWithRole | null,
     args: AssignUsersToReviewMeetingArgs
@@ -130,7 +131,7 @@ export default class ReviewMeetingMutations {
       });
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async removeParticipant(
     agent: UserWithRole | null,
     args: RemoveUserFromReviewMeetingArgs
@@ -146,7 +147,7 @@ export default class ReviewMeetingMutations {
       });
   }
 
-  @Authorized()
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   @EventBus(Event.REVIEW_MEETING_NOTIFIED)
   async notifyParticipants(
     user: UserWithRole | null,

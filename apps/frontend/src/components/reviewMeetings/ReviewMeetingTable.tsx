@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryParams } from 'use-query-params';
 
-import { useCheckAccess } from 'components/common/Can';
 import SuperMaterialTable, {
   DefaultQueryParams,
   UrlQueryParamsType,
@@ -22,7 +21,6 @@ import {
   BasicUserDetails,
   EmailStatusActionEmailTemplate,
   ReviewMeetingFragment,
-  UserRole,
 } from '../../generated/sdk';
 import AssignedParticipantsTable from './AssignedParticipantsTable';
 import CreateUpdateReviewMeeting from './CreateUpdateReviewMeeting';
@@ -75,8 +73,6 @@ const ReviewMeetingsTable = () => {
   const [urlQueryParams, setUrlQueryParams] =
     useQueryParams<UrlQueryParamsType>(DefaultQueryParams);
 
-  const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
-
   const onReviewMeetingDelete = async (reviewMeetingId: number | string) => {
     try {
       await api({
@@ -103,8 +99,8 @@ const ReviewMeetingsTable = () => {
       usersIds: participants.map((scientist) => scientist.id),
     });
     participants = participants.map((participant) => {
-      if (!participant.organisation) {
-        participant.organisation = 'Other';
+      if (!participant.institution) {
+        participant.institution = 'Other';
       }
 
       return participant;
@@ -241,11 +237,6 @@ const ReviewMeetingsTable = () => {
         <SuperMaterialTable
           delete={onReviewMeetingDelete}
           setData={setReviewMeetingsWithLoading}
-          hasAccess={{
-            create: isUserOfficer,
-            update: isUserOfficer,
-            remove: isUserOfficer,
-          }}
           title={
             <Typography variant="h6" component="h2">
               Call review meetings
@@ -265,29 +256,25 @@ const ReviewMeetingsTable = () => {
             search: true,
             debounceInterval: 400,
           }}
-          actions={
-            isUserOfficer
-              ? [
-                  {
-                    icon: AssignmentIndIcon,
-                    tooltip: 'Assign participant',
-                    onClick: (_event: unknown, rowData: unknown): void =>
-                      setAssigningReviewMeetingId(
-                        (rowData as ReviewMeetingFragment).id
-                      ),
-                  },
-                  (rowData) => ({
-                    icon: () => NotifyIcon(rowData.notified),
-                    tooltip: rowData.notified
-                      ? 'Already notified, notify again'
-                      : 'Notify participant',
-                    onClick: (_event: unknown, rowData: unknown): void => {
-                      setSelectedRow(rowData as ReviewMeetingFragment);
-                    },
-                  }),
-                ]
-              : []
-          }
+          actions={[
+            {
+              icon: AssignmentIndIcon,
+              tooltip: 'Assign participant',
+              onClick: (_event: unknown, rowData: unknown): void =>
+                setAssigningReviewMeetingId(
+                  (rowData as ReviewMeetingFragment).id
+                ),
+            },
+            (rowData) => ({
+              icon: () => NotifyIcon(rowData.notified),
+              tooltip: rowData.notified
+                ? 'Already notified, notify again'
+                : 'Notify participant',
+              onClick: (_event: unknown, rowData: unknown): void => {
+                setSelectedRow(rowData as ReviewMeetingFragment);
+              },
+            }),
+          ]}
           urlQueryParams={urlQueryParams}
           setUrlQueryParams={setUrlQueryParams}
         />
