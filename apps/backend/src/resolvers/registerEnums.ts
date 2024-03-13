@@ -13,6 +13,7 @@ import { ProposalEndStatus, ProposalPublicStatus } from '../models/Proposal';
 import { ProposalStatusActionType } from '../models/ProposalStatusAction';
 import { QuestionFilterCompareOperator } from '../models/Questionary';
 import { ReviewerFilter, ReviewStatus } from '../models/Review';
+import { EsraStatus, SafetyLevel } from '../models/SafetyManagement';
 import { SampleStatus } from '../models/Sample';
 import { SettingsId } from '../models/Settings';
 import { ShipmentStatus } from '../models/Shipment';
@@ -101,4 +102,6 @@ export const registerEnums = () => {
   registerEnumType(ProposalStatusActionType, {
     name: 'ProposalStatusActionType',
   });
+  registerEnumType(SafetyLevel, { name: 'SafetyLevel' });
+  registerEnumType(EsraStatus, { name: 'EsraStatus' });
 };

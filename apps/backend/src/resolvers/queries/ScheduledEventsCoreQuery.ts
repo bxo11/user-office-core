@@ -42,6 +42,9 @@ export class ScheduledEventsCoreFilter {
 
   @Field(() => TimeSpan, { nullable: true })
   overlaps?: TimeSpan;
+
+  @Field(() => Int, { nullable: true })
+  proposalPk?: number;
 }
 
 @ArgsType()

@@ -5,7 +5,7 @@ import { Knex } from 'knex';
 import { injectable } from 'tsyringe';
 
 import { Event } from '../../events/event.enum';
-import { Proposal, Proposals } from '../../models/Proposal';
+import { Proposal, ProposalEndStatus, Proposals } from '../../models/Proposal';
 import { ProposalView } from '../../models/ProposalView';
 import { getQuestionDefinition } from '../../models/questionTypes/QuestionRegistry';
 import { ReviewerFilter } from '../../models/Review';
@@ -382,6 +382,20 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           );
         }
 
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
+          query.where(
+            'proposal_table_view.final_status',
+            filter.proposalFinalStatus
+          );
+        }
+
         if (filter?.shortCodes) {
           const filteredAndPreparedShortCodes = filter?.shortCodes
             .filter((shortCode) => shortCode)
@@ -391,6 +405,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
             `proposal_table_view.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
           );
         }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal_table_view.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
+          );
+        }
+
         if (filter?.questionFilter) {
           const questionFilter = filter.questionFilter;
 
@@ -492,6 +517,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           query.where('proposals.status_id', filter?.proposalStatusId);
         }
 
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
+          query.where('proposals.final_status', filter.proposalFinalStatus);
+        }
+
         if (filter?.shortCodes) {
           const filteredAndPreparedShortCodes = filter?.shortCodes
             .filter((shortCode) => shortCode)
@@ -501,6 +537,17 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
             `proposals.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
           );
         }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
+          );
+        }
+
         if (filter?.referenceNumbers) {
           query.whereIn('proposals.proposal_id', filter.referenceNumbers);
         }
@@ -588,6 +635,20 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
           );
         }
 
+        if (
+          filter?.proposalFinalStatus !== undefined &&
+          filter?.proposalFinalStatus !== null &&
+          Object.keys(ProposalEndStatus)
+            .filter((v) => isNaN(Number(v)))
+            .map((key, value) => value)
+            .includes(filter.proposalFinalStatus)
+        ) {
+          query.where(
+            'proposal_table_view.final_status',
+            filter.proposalFinalStatus
+          );
+        }
+
         if (filter?.shortCodes) {
           const filteredAndPreparedShortCodes = filter?.shortCodes
             .filter((shortCode) => shortCode)
@@ -595,6 +656,16 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
 
           query.whereRaw(
             `proposal_table_view.proposal_id similar to '%(${filteredAndPreparedShortCodes})%'`
+          );
+        }
+
+        if (filter?.proposalTagIds && filter?.proposalTagIds.length > 0) {
+          query.whereRaw(
+            `(SELECT COUNT(DISTINCT pt.tag_id) 
+              FROM proposal_tags as pt
+              WHERE pt.proposal_pk = proposal.proposal_pk 
+              AND pt.tag_id IN (${filter.proposalTagIds.join(',')})
+             ) = ${filter.proposalTagIds.length}`
           );
         }
 

@@ -1,0 +1,13 @@
+fragment safetyManagement on SafetyManagement {
+  id
+  proposalPk
+  esraStatus
+  safetyLevel
+  notes
+  tags {
+    ...tag
+  }
+  responsibleUsers {
+    ...basicUserDetails
+  }
+}

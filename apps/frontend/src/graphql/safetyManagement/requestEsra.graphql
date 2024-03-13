@@ -1,0 +1,5 @@
+mutation requestEsra($safetyManagementId: Int!) {
+  requestEsra(safetyManagementId: $safetyManagementId) {
+    ...safetyManagement
+  }
+}

@@ -1,0 +1,21 @@
+mutation createProposalSafetyManagement(
+  $proposalPk: Int!
+  $safetyLevel: SafetyLevel!
+  $notes: String
+  $tagIds: [Int!]
+  $responsibleUserIds: [Int!]
+  $esraStatus: EsraStatus
+  $statusComment: String
+) {
+  createProposalSafetyManagement(
+    proposalPk: $proposalPk
+    safetyLevel: $safetyLevel
+    notes: $notes
+    tagIds: $tagIds
+    responsibleUserIds: $responsibleUserIds
+    esraStatus: $esraStatus
+    statusComment: $statusComment
+  ) {
+    ...safetyManagement
+  }
+}

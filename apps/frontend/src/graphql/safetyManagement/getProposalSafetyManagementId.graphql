@@ -1,0 +1,5 @@
+query getProposalSafetyManagement($proposalPk: Int!) {
+  proposalSafetyManagement(proposalPk: $proposalPk) {
+    ...safetyManagement
+  }
+}

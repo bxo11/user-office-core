@@ -1,0 +1,13 @@
+mutation updateEsraStatus(
+  $proposalPk: Int!
+  $esraStatus: EsraStatus!
+  $statusComment: String!
+) {
+  updateEsraStatus(
+    proposalPk: $proposalPk
+    esraStatus: $esraStatus
+    statusComment: $statusComment
+  ) {
+    ...safetyManagement
+  }
+}

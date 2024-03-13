@@ -37,7 +37,9 @@ export const Tokens = {
   ReviewMeetingDataSource: Symbol('ReviewMeetingDataSource'),
   PredefinedMessageDataSource: Symbol('PredefinedMessageDataSource'),
   InternalReviewDataSource: Symbol('InternalReviewDataSource'),
+  TagDataSource: Symbol('TagDataSource'),
   FapDataColumns: Symbol('FapDataColumns'),
   FapDataRow: Symbol('FapDataRow'),
   PopulateRow: Symbol('PopulateRow'),
+  SafetyManagementDataSource: Symbol('SafetyManagementDataSource'),
 };

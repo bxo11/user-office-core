@@ -113,6 +113,10 @@ const UserPage = lazy(() => import('./user/UserPage'));
 const ReviewMeetingsPage = lazy(
   () => import('./reviewMeetings/ReviewMeetingsPage')
 );
+const SafetyManagementPage = lazy(
+  () => import('./safetyManagement/SafetyManagementPage')
+);
+const EsraPage = lazy(() => import('./esra/EstraPage'));
 
 type BottomNavItemProps = {
   /** Content of the information modal. */
@@ -377,6 +381,12 @@ const Dashboard = () => {
               title="Proposal"
               path="/Proposals"
               component={ProposalPage}
+            />
+            <TitledRoute
+              setHeader={setHeader}
+              title="Safety management"
+              path="/SafetyManagement"
+              component={SafetyManagementPage}
             />
             {isUserOfficer && (
               <TitledRoute
@@ -656,6 +666,12 @@ const Dashboard = () => {
               title="Call review meetings"
               path="/CallReviewMeetings"
               component={ReviewMeetingsPage}
+            />
+            <TitledRoute
+              setHeader={setHeader}
+              title="ESRA form"
+              path="/Esra/:proposalPk"
+              component={EsraPage}
             />
             <Can
               allowedRoles={[UserRole.USER_OFFICER]}

@@ -9,16 +9,20 @@ import { DecodedValueMap } from 'use-query-params';
 
 import CallFilter from 'components/common/proposalFilters/CallFilter';
 import InstrumentFilter from 'components/common/proposalFilters/InstrumentFilter';
+import ProposalFinalStatusFilter from 'components/common/proposalFilters/ProposalFinalStatusFilter';
 import ProposalStatusFilter from 'components/common/proposalFilters/ProposalStatusFilter';
+import ProposalTagsFilter from 'components/common/proposalFilters/ProposalTagsFilter';
 import QuestionaryFilter from 'components/common/proposalFilters/QuestionaryFilter';
 import {
   Call,
   DataType,
   InstrumentFragment,
+  ProposalEndStatus,
   ProposalsFilter,
   ProposalStatus,
   QuestionFilterCompareOperator,
   QuestionFilterInput,
+  Tag,
 } from 'generated/sdk';
 import { useQuestionFilterQueryParams } from 'hooks/proposal/useQuestionFilterQueryParams';
 
@@ -43,9 +47,11 @@ export const questionaryFilterFromUrlQuery = (
   }
 };
 type ProposalFilterBarProps = {
-  calls?: { data: Call[]; isLoading: boolean };
+  calls?: { data: Call[]; isLoading: boolean; sortByEndCall?: boolean };
   instruments?: { data: InstrumentFragment[]; isLoading: boolean };
   proposalStatuses?: { data: ProposalStatus[]; isLoading: boolean };
+  proposalFinalStatuses?: { data: ProposalEndStatus[] };
+  proposalTags?: { data: Tag[]; isLoading: boolean };
   setProposalFilter: (filter: ProposalsFilter) => void;
   filter: ProposalsFilter;
 };
@@ -54,6 +60,8 @@ const ProposalFilterBar = ({
   calls,
   instruments,
   proposalStatuses,
+  proposalFinalStatuses,
+  proposalTags,
   setProposalFilter,
   filter,
 }: ProposalFilterBarProps) => {
@@ -84,6 +92,7 @@ const ProposalFilterBar = ({
               callId,
             });
           }}
+          sortByEndCall={calls?.sortByEndCall}
         />
       </Grid>
 
@@ -112,6 +121,36 @@ const ProposalFilterBar = ({
             setProposalFilter({
               ...filter,
               proposalStatusId,
+            });
+          }}
+        />
+      </Grid>
+
+      <Grid item sm={3} xs={12}>
+        <ProposalFinalStatusFilter
+          proposalFinalStatuses={proposalFinalStatuses?.data}
+          proposalFinalStatus={filter.proposalFinalStatus as string}
+          shouldShowAll={true}
+          onChange={(proposalFinalStatus) => {
+            setProposalFilter({
+              ...filter,
+              proposalFinalStatus:
+                ProposalEndStatus[
+                  proposalFinalStatus as keyof typeof ProposalEndStatus
+                ],
+            });
+          }}
+        />
+      </Grid>
+
+      <Grid item sm={3} xs={12}>
+        <ProposalTagsFilter
+          proposalTags={proposalTags?.data}
+          selectedProposalTagIds={filter.proposalTagIds}
+          onChange={(proposalTagIds) => {
+            setProposalFilter({
+              ...filter,
+              proposalTagIds,
             });
           }}
         />

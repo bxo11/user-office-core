@@ -24,11 +24,13 @@ export function useProposalsCoreData(
     reviewer,
     callId,
     instrumentId,
+    proposalFinalStatus,
     proposalStatusId,
     questionaryIds,
     text,
     questionFilter,
     referenceNumbers,
+    proposalTagIds,
   } = filter;
 
   const fetchProposalsData = useCallback(
@@ -46,9 +48,11 @@ export function useProposalsCoreData(
               reviewer,
               callId,
               instrumentId,
+              proposalFinalStatus,
               proposalStatusId,
               questionaryIds,
               referenceNumbers,
+              proposalTagIds,
               questionFilter: questionFilter && {
                 ...questionFilter,
                 value:
@@ -87,9 +91,11 @@ export function useProposalsCoreData(
             filter: {
               callId,
               instrumentId,
+              proposalFinalStatus,
               proposalStatusId,
               questionaryIds,
               referenceNumbers,
+              proposalTagIds,
               questionFilter: questionFilter && {
                 ...questionFilter,
                 value:
@@ -128,6 +134,7 @@ export function useProposalsCoreData(
       reviewer,
       callId,
       instrumentId,
+      proposalFinalStatus,
       proposalStatusId,
       questionaryIds,
       text,
@@ -135,6 +142,7 @@ export function useProposalsCoreData(
       api,
       currentRole,
       referenceNumbers,
+      proposalTagIds,
       queryParameters,
     ]
   );

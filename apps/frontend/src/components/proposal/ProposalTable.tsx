@@ -1,5 +1,6 @@
 import { Column } from '@material-table/core';
 import AddIcon from '@mui/icons-material/Add';
+import ArticleIcon from '@mui/icons-material/Article';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Edit from '@mui/icons-material/Edit';
 import FileCopy from '@mui/icons-material/FileCopy';
@@ -10,7 +11,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
-import { Redirect } from 'react-router';
+import { Redirect, useHistory } from 'react-router';
 
 import { ActionButtonContainer } from 'components/common/ActionButtonContainer';
 import CopyToClipboard from 'components/common/CopyToClipboard';
@@ -80,6 +81,7 @@ const ProposalTable = ({
   isLoading,
   confirm,
 }: ProposalTableProps) => {
+  const history = useHistory();
   const userContext = useContext(UserContext);
   const featureContext = useContext(FeatureContext);
   const { api } = useDataApiWithFeedback();
@@ -256,6 +258,14 @@ const ProposalTable = ({
               downloadPDFProposal(
                 [(rowData as PartialProposalsDataType).primaryKey],
                 (rowData as PartialProposalsDataType).title
+              ),
+          },
+          {
+            icon: ArticleIcon,
+            tooltip: 'ESRA form',
+            onClick: (event, rowData) =>
+              history.push(
+                `/Esra/${(rowData as PartialProposalsDataType).primaryKey}`
               ),
           },
           (rowData) => {

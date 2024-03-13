@@ -33,11 +33,13 @@ import { RedeemCode } from '../../models/RedeemCode';
 import { Review } from '../../models/Review';
 import { ReviewMeeting } from '../../models/ReviewMeeting';
 import { Role } from '../../models/Role';
+import { SafetyManagement } from '../../models/SafetyManagement';
 import { Sample } from '../../models/Sample';
 import { SampleExperimentSafetyInput } from '../../models/SampleExperimentSafetyInput';
 import { ScheduledEventCore } from '../../models/ScheduledEventCore';
 import { Settings, SettingsId } from '../../models/Settings';
 import { Shipment, ShipmentStatus } from '../../models/Shipment';
+import { Tag } from '../../models/Tag';
 import { TechnicalReview } from '../../models/TechnicalReview';
 import {
   DataType,
@@ -710,6 +712,22 @@ export interface ReviewMeetingRecord {
   readonly updated_at: Date;
 }
 
+export interface TagRecord {
+  readonly tag_id: number;
+  readonly tag: string;
+  readonly category: string;
+  readonly color: string;
+}
+
+export interface SafetyManagementRecord {
+  readonly safety_management_id: number;
+  readonly proposal_pk: number;
+  readonly safety_level: number;
+  readonly esra_status: number;
+  readonly notes: string;
+  readonly esra_requested: boolean;
+}
+
 export const createTopicObject = (record: TopicRecord) => {
   return new Topic(
     record.topic_id,
@@ -1294,3 +1312,20 @@ export const createReviewMeetingObject = (meeting: ReviewMeetingRecord) =>
     meeting.created_at,
     meeting.updated_at
   );
+
+export const createTagObject = (tag: TagRecord) => {
+  return new Tag(tag.tag_id, tag.tag, tag.category, tag.color);
+};
+
+export const createSafetyManagementObject = (
+  safetyManagement: SafetyManagementRecord
+) => {
+  return new SafetyManagement(
+    safetyManagement.safety_management_id,
+    safetyManagement.proposal_pk,
+    safetyManagement.safety_level,
+    safetyManagement.esra_status,
+    safetyManagement.notes,
+    safetyManagement.esra_requested
+  );
+};

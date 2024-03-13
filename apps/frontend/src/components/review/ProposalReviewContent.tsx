@@ -12,6 +12,7 @@ import GeneralInformation from 'components/proposal/GeneralInformation';
 import ProposalAdmin, {
   AdministrationFormData,
 } from 'components/proposal/ProposalAdmin';
+import SafetyManagement from 'components/safetyManagement/SafetyManagement';
 import { UserContext } from 'context/UserContextProvider';
 import {
   CoreTechnicalReviewFragment,
@@ -37,6 +38,7 @@ export enum PROPOSAL_MODAL_TAB_NAMES {
   ADMIN = 'Admin',
   GRADE = 'Grade',
   LOGS = 'Logs',
+  SAFETY_MANAGEMENT = 'Safety management',
 }
 
 type ProposalReviewContentProps = {
@@ -58,6 +60,7 @@ const ProposalReviewContent = ({
   const isUserOfficer = useCheckAccess([UserRole.USER_OFFICER]);
   const isInstrumentScientist = useCheckAccess([UserRole.INSTRUMENT_SCIENTIST]);
   const isInternalReviewer = useCheckAccess([UserRole.INTERNAL_REVIEWER]);
+  const isSafetyManager = useCheckAccess([UserRole.SAFETY_MANAGER]);
   const { reviewData, setReviewData } = useReviewData(reviewId, fapId);
   const { proposalData, setProposalData, loading } = useProposalData(
     proposalPk || reviewData?.proposal?.primaryKey
@@ -157,11 +160,15 @@ const ProposalReviewContent = ({
     />
   );
 
-  const EventLogsTab = isUserOfficer && (
+  const EventLogsTab = (isUserOfficer || isSafetyManager) && (
     <EventLogList
       changedObjectId={proposalData.primaryKey}
       eventType="PROPOSAL"
     />
+  );
+
+  const SafetyManagementTab = (isUserOfficer || isSafetyManager) && (
+    <SafetyManagement proposalPk={proposalData.primaryKey} />
   );
 
   const tabsContent = tabNames.map((tab, index) => {
@@ -178,6 +185,8 @@ const ProposalReviewContent = ({
         return <Fragment key={index}>{EventLogsTab}</Fragment>;
       case 'Grade':
         return <Fragment key={index}>{GradeTab}</Fragment>;
+      case 'Safety management':
+        return <Fragment key={index}>{SafetyManagementTab}</Fragment>;
       default:
         return null;
     }

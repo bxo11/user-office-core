@@ -1,4 +1,4 @@
-import { InputAdornment } from '@mui/material';
+import { Box, Chip, InputAdornment, Typography } from '@mui/material';
 import { InputProps } from '@mui/material/Input';
 import MuiTextField, {
   TextFieldProps as MUITextFieldProps,
@@ -22,6 +22,7 @@ type FormikUIAutocompleteProps = {
   multiple?: boolean;
   'data-cy'?: string;
   AdornmentIcon?: MUITextFieldProps;
+  TagColors?: { [key: number]: string };
 };
 
 const FormikUIAutocomplete = ({
@@ -36,10 +37,57 @@ const FormikUIAutocomplete = ({
   TextFieldProps,
   multiple = false,
   AdornmentIcon,
+  TagColors,
   ...props
 }: FormikUIAutocompleteProps) => {
   const [adornmentVisible, setAdornmentVisible] = useState(false);
   const options = items.map((item) => item.value);
+
+  //TODO: refactor colored chips and list items
+  const renderTags = (value: number[], getTagProps) =>
+    value.map((val, index) => {
+      const option = items.find((item) => item.value === val);
+
+      const color = TagColors![val];
+
+      return option ? (
+        <Chip
+          label={option.text}
+          {...getTagProps({ index })}
+          sx={{
+            backgroundColor: color,
+            color: 'dark-gray',
+            '&:hover': {
+              opacity: 0.7,
+            },
+          }}
+        />
+      ) : null;
+    });
+
+  const renderOption = (props: object, option) => {
+    const color = TagColors ? TagColors[option] : 'transparent';
+    const optionText = items.find((item) => item.value === option)?.text || '';
+
+    return (
+      <Box
+        component="li"
+        {...props}
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        <Box
+          sx={{
+            width: 14,
+            height: 14,
+            borderRadius: '50%',
+            backgroundColor: color,
+            marginRight: 1,
+          }}
+        />
+        <Typography variant="body2">{optionText}</Typography>
+      </Box>
+    );
+  };
 
   return (
     <Field
@@ -55,6 +103,8 @@ const FormikUIAutocomplete = ({
 
         return foundOption?.text || '';
       }}
+      renderTags={multiple && TagColors ? renderTags : undefined}
+      renderOption={multiple && TagColors ? renderOption : undefined}
       renderInput={(params: MUITextFieldProps) => (
         <MuiTextField
           {...params}
@@ -82,7 +132,9 @@ const FormikUIAutocomplete = ({
           }}
         />
       )}
-      ListboxProps={{ 'data-cy': props['data-cy'] + '-options' }}
+      ListboxProps={{
+        'data-cy': props['data-cy'] + '-options',
+      }}
       data-cy={props['data-cy']}
     />
   );

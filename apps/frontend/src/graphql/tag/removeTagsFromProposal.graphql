@@ -1,0 +1,3 @@
+mutation removeTagsFromProposal($proposalPk: Int!, $tagIds: [Int!]!) {
+  removeTagsFromProposal(proposalPk: $proposalPk, tagIds: $tagIds)
+}

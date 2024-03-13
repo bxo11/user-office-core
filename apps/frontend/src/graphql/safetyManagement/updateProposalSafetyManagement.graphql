@@ -1,0 +1,23 @@
+mutation updateProposalSafetyManagement(
+  $proposalPk: Int
+  $safetyLevel: SafetyLevel
+  $notes: String
+  $safetyManagementId: Int!
+  $tagIds: [Int!]
+  $responsibleUserIds: [Int!]
+  $esraStatus: EsraStatus
+  $statusComment: String
+) {
+  updateProposalSafetyManagement(
+    proposalPk: $proposalPk
+    safetyLevel: $safetyLevel
+    notes: $notes
+    safetyManagementId: $safetyManagementId
+    tagIds: $tagIds
+    responsibleUserIds: $responsibleUserIds
+    esraStatus: $esraStatus
+    statusComment: $statusComment
+  ) {
+    ...safetyManagement
+  }
+}

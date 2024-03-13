@@ -8,6 +8,7 @@ import { InstrumentDataSource } from '../datasources/InstrumentDataSource';
 import { ProposalSettingsDataSource } from '../datasources/ProposalSettingsDataSource';
 import { ApplicationEvent } from '../events/applicationEvents';
 import { Event } from '../events/event.enum';
+import { EsraStatus } from '../models/SafetyManagement';
 
 export default function createHandler() {
   const eventLogsDataSource = container.resolve<EventLogsDataSource>(
@@ -134,6 +135,35 @@ export default function createHandler() {
             event.questionarystep.questionaryId.toString()
           );
           break;
+        case Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED:
+        case Event.PROPOSAL_ESRA_REQUESTED:
+          await eventLogsDataSource.set(
+            event.loggedInUserId,
+            event.type,
+            json,
+            event.safetymanagement.proposalPk.toString()
+          );
+          break;
+        case Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED: {
+          const [{ statusComment }] = JSON.parse(event.inputArgs || '{}');
+          const { esraStatus } = event.safetymanagement;
+
+          if (!(esraStatus && statusComment)) {
+            return;
+          }
+
+          const description = `Changed ESRA status to: ${EsraStatus[esraStatus]} with comment: ${statusComment}`;
+
+          await eventLogsDataSource.set(
+            event.loggedInUserId,
+            event.type,
+            json,
+            event.safetymanagement.proposalPk.toString(),
+            description
+          );
+
+          break;
+        }
         default: {
           const changedObjectId =
             typeof (event as any)[event.key].id === 'number'

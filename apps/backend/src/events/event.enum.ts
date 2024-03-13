@@ -67,6 +67,9 @@ export enum Event {
   INTERNAL_REVIEW_UPDATED = 'INTERNAL_REVIEW_UPDATED',
   INTERNAL_REVIEW_DELETED = 'INTERNAL_REVIEW_DELETED',
   REVIEW_MEETING_NOTIFIED = 'REVIEW_MEETING_NOTIFIED',
+  PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED = 'PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED',
+  PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED = 'PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED',
+  PROPOSAL_ESRA_REQUESTED = 'PROPOSAL_ESRA_REQUESTED',
 }
 
 export const EventLabel = new Map<Event, string>([
@@ -274,5 +277,13 @@ export const EventLabel = new Map<Event, string>([
   [
     Event.REVIEW_MEETING_NOTIFIED,
     'Event occurs when call review meeting is created',
+  ],
+  [
+    Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED,
+    'Event occurs when safety management decision is updated',
+  ],
+  [
+    Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED,
+    'Event occurs when esra status is updated',
   ],
 ]);

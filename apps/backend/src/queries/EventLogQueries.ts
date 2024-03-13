@@ -16,7 +16,7 @@ export default class EventLogQueries {
   ) {}
 
   // NOTE: * is used when we want to get all event logs without applying any filter
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getAll(
     agent: UserWithRole | null,
     filter: EventLogFilter = { changedObjectId: '*', eventType: '*' }

@@ -20,9 +20,11 @@ import QuestionaryMutations from './mutations/QuestionaryMutations';
 import RedeemCodesMutations from './mutations/RedeemCodesMutations';
 import ReviewMeetingMutations from './mutations/ReviewMeetingMutation';
 import ReviewMutations from './mutations/ReviewMutations';
+import SafetyManagementMutations from './mutations/SafetyManagementMutations';
 import SampleEsiMutations from './mutations/SampleEsiMutations';
 import SampleMutations from './mutations/SampleMutations';
 import ShipmentMutations from './mutations/ShipmentMutations';
+import TagMutations from './mutations/TagMutations';
 import TemplateMutations from './mutations/TemplateMutations';
 import UnitMutations from './mutations/UnitMutations';
 import UserMutations from './mutations/UserMutations';
@@ -44,11 +46,13 @@ import ProposalSettingsQueries from './queries/ProposalSettingsQueries';
 import QuestionaryQueries from './queries/QuestionaryQueries';
 import ReviewMeetingQueries from './queries/ReviewMeetingQueries';
 import ReviewQueries from './queries/ReviewQueries';
+import SafetyManagementQueries from './queries/SafetyManagementQueries';
 import SampleEsiQueries from './queries/SampleEsiQueries';
 import SampleQueries from './queries/SampleQueries';
 import ScheduledEventQueries from './queries/ScheduledEventQueries';
 import ShipmentQueries from './queries/ShipmentQueries';
 import SystemQueries from './queries/SystemQueries';
+import TagQueries from './queries/TagQueries';
 import TemplateQueries from './queries/TemplateQueries';
 import UnitQueries from './queries/UnitQueries';
 import UserQueries from './queries/UserQueries';
@@ -82,6 +86,8 @@ const context: BasicResolverContext = {
     predefinedMessage: container.resolve(PredefinedMessageQueries),
     internalReview: container.resolve(InternalReviewQueries),
     reviewMeeting: container.resolve(ReviewMeetingQueries),
+    tag: container.resolve(TagQueries),
+    safetyManagement: container.resolve(SafetyManagementQueries),
   },
   mutations: {
     admin: container.resolve(AdminMutations),
@@ -108,6 +114,8 @@ const context: BasicResolverContext = {
     predefinedMessage: container.resolve(PredefinedMessageMutations),
     internalReview: container.resolve(InternalReviewMutations),
     reviewMeeting: container.resolve(ReviewMeetingMutations),
+    tag: container.resolve(TagMutations),
+    safetyManagement: container.resolve(SafetyManagementMutations),
   },
   clients: {
     scheduler: async () => {

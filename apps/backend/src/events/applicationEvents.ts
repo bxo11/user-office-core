@@ -7,6 +7,7 @@ import { Proposal, ProposalPks, Proposals } from '../models/Proposal';
 import { QuestionaryStep } from '../models/Questionary';
 import { Review } from '../models/Review';
 import { ReviewMeeting } from '../models/ReviewMeeting';
+import { SafetyManagement } from '../models/SafetyManagement';
 import { Sample } from '../models/Sample';
 import { ScheduledEventCore } from '../models/ScheduledEventCore';
 import { TechnicalReview } from '../models/TechnicalReview';
@@ -301,6 +302,21 @@ interface ReviewMeetingNotifiedEvent extends GeneralEvent {
   reviewmeeting: ReviewMeeting;
 }
 
+interface ProposalSafetyManagementDecisionUpdated extends GeneralEvent {
+  type: Event.PROPOSAL_SAFETY_MANAGEMENT_DECISSION_UPDATED;
+  safetymanagement: SafetyManagement;
+}
+
+interface ProposalSafetyManagementEsraStatusUpdated extends GeneralEvent {
+  type: Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED;
+  safetymanagement: SafetyManagement;
+}
+
+interface EsraRequested extends GeneralEvent {
+  type: Event.PROPOSAL_ESRA_REQUESTED;
+  safetymanagement: SafetyManagement;
+}
+
 export type ApplicationEvent =
   | ProposalAcceptedEvent
   | ProposalUpdatedEvent
@@ -356,4 +372,7 @@ export type ApplicationEvent =
   | FapReviewerNotified
   | ProposalStatusActionExecutedEvent
   | InternalReviewCreatedEvent
-  | ReviewMeetingNotifiedEvent;
+  | ReviewMeetingNotifiedEvent
+  | ProposalSafetyManagementDecisionUpdated
+  | ProposalSafetyManagementEsraStatusUpdated
+  | EsraRequested;
