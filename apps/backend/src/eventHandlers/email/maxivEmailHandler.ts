@@ -2,14 +2,20 @@ import { logger } from '@user-office-software/duo-logger';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../../config/Tokens';
+import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
+import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
 import { ProposalDataSource } from '../../datasources/ProposalDataSource';
 import { RedeemCodesDataSource } from '../../datasources/RedeemCodesDataSource';
+import { ReviewMeetingDataSource } from '../../datasources/ReviewMeetingDataSource';
+import { SafetyManagementDataSource } from '../../datasources/SafetyManagementDataSource';
 import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
 import { ProposalEndStatus } from '../../models/Proposal';
+import { EsraStatus } from '../../models/SafetyManagement';
+import { SettingsId } from '../../models/Settings';
 import { UserRole } from '../../models/User';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
@@ -28,6 +34,19 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
   );
   const callDataSource = container.resolve<CallDataSource>(
     Tokens.CallDataSource
+  );
+  const safetyManagementDataSource =
+    container.resolve<SafetyManagementDataSource>(
+      Tokens.SafetyManagementDataSource
+    );
+  const adminDataSource = container.resolve<AdminDataSource>(
+    Tokens.AdminDataSource
+  );
+  const reviewMeetingDataSource = container.resolve<ReviewMeetingDataSource>(
+    Tokens.ReviewMeetingDataSource
+  );
+  const instrumentDataSource = container.resolve<InstrumentDataSource>(
+    Tokens.InstrumentDataSource
   );
 
   if (event.isRejection) {
@@ -260,6 +279,195 @@ export async function maxivEmailHandler(event: ApplicationEvent) {
         .catch((err: string) => {
           logger.logError('Could not send email on Fap reviewer notify:', {
             error: err,
+            event,
+          });
+        });
+
+      return;
+    }
+    case Event.INTERNAL_REVIEW_CREATED: {
+      const internalReview = event.internalreview;
+      const recipient = await userDataSource.getBasicUserInfo(
+        internalReview.reviewerId
+      );
+      const setting = await adminDataSource.getSetting(
+        SettingsId.INTERNAL_REVIEW_NOTIFICATION_EMAIL_TEMPLATE_ID
+      );
+      const templateId = setting?.settingsValue;
+
+      if (!recipient || !templateId) {
+        logger.logError(
+          'Failed email notification on INTERNAL_REVIEW_CREATED',
+          { templateId, recipient, event }
+        );
+
+        return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            // TODO add substitution data
+          },
+          recipients: [{ address: recipient?.email }],
+        })
+        .then((res) => {
+          logger.logInfo('Email sent on INTERNAL_REVIEW_CREATED notify:', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err: string) => {
+          logger.logError(
+            'Could not send email on INTERNAL_REVIEW_CREATED notify:',
+            {
+              error: err,
+              event,
+            }
+          );
+        });
+
+      return;
+    }
+    case Event.REVIEW_MEETING_NOTIFIED: {
+      const reviewMeeting = event.reviewmeeting;
+      const participants = await reviewMeetingDataSource.getParticipants(
+        reviewMeeting.id
+      );
+      const templateId = JSON.parse(event.inputArgs ?? '{}')[0].templateId;
+      const instrument = await instrumentDataSource.getInstrument(
+        reviewMeeting.instrumentId
+      );
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            instrumentName: instrument?.name,
+          },
+          recipients: participants.map((participant) => {
+            return { address: participant.email };
+          }),
+        })
+        .then((res) => {
+          logger.logInfo('Email sent on REVIEW_MEETING_NOTIFIED notify:', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err: string) => {
+          logger.logError(
+            'Could not send email on REVIEW_MEETING_NOTIFIED notify:',
+            {
+              error: err,
+              event,
+            }
+          );
+        });
+
+      return;
+    }
+    case Event.PROPOSAL_SAFETY_MANAGEMENT_ESRA_STATUS_UPDATED: {
+      const [{ statusComment }] = JSON.parse(event.inputArgs || '{}');
+
+      const { proposalPk, esraStatus } = event.safetymanagement;
+
+      const proposal = await proposalDataSource.get(proposalPk);
+      const proposer = await userDataSource.getUser(proposal?.proposerId ?? 0);
+      const participants = await userDataSource.getProposalUsers(proposalPk);
+
+      if (!esraStatus || !proposer || !proposal) {
+        return;
+      }
+
+      let templateId = '';
+      switch (esraStatus) {
+        case EsraStatus.ESRA_APPROVED.valueOf():
+          templateId = 'esra-approved';
+          break;
+        case EsraStatus.ESRA_REJECTED.valueOf():
+          templateId = 'esra-rejected';
+          break;
+        default:
+          return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            proposalNumber: proposal.proposalId,
+            proposalTitle: proposal.title,
+            esraStatus: EsraStatus[esraStatus],
+            esraComment: statusComment,
+          },
+          recipients: [
+            { address: proposer.email },
+            ...participants.map((partipant) => {
+              return {
+                address: partipant.email,
+              };
+            }),
+          ],
+        })
+        .then(async (res) => {
+          logger.logInfo('Email sent on esra status change', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err) => {
+          logger.logError('Could not send email on esra status change', {
+            error: err.toString(),
+            event,
+          });
+        });
+
+      return;
+    }
+    case Event.PROPOSAL_ESRA_REQUESTED: {
+      const { id, proposalPk } = event.safetymanagement;
+      const respomsibleSafetyManagers =
+        await safetyManagementDataSource.getResponsibleUsers(id);
+      const proposal = await proposalDataSource.get(proposalPk);
+
+      if (respomsibleSafetyManagers.length === 0 || !proposal) {
+        return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: 'esra-requested',
+          },
+          substitution_data: {
+            proposalNumber: proposal.proposalId,
+            proposalTitle: proposal.title,
+          },
+          recipients: [
+            ...respomsibleSafetyManagers.map((partipant) => {
+              return {
+                address: partipant.email,
+              };
+            }),
+          ],
+        })
+        .then(async (res) => {
+          logger.logInfo('Email sent on esra requested', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err) => {
+          logger.logError('Could not send email on esra requested', {
+            error: err.toString(),
             event,
           });
         });

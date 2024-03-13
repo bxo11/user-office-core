@@ -19,12 +19,15 @@ import PostgresProposalSettingsDataSource from '../datasources/postgres/Proposal
 import PostgresQuestionaryDataSource from '../datasources/postgres/QuestionaryDataSource';
 import PostgresRedeemCodesDataSource from '../datasources/postgres/RedeemCodesDataSource';
 import PostgresReviewDataSource from '../datasources/postgres/ReviewDataSource';
+import PostgresReviewMeetingDataSource from '../datasources/postgres/ReviewMeetingDataSource';
+import SafetyManagementDataSource from '../datasources/postgres/SafetyManagementDataSource';
 import PostgresSampleDataSource from '../datasources/postgres/SampleDataSource';
 import PostgresSampleEsiDataSource from '../datasources/postgres/SampleEsiDataSource';
 import PostgresScheduledEventDataSource from '../datasources/postgres/ScheduledEventDataSource';
 import PostgresShipmentDataSource from '../datasources/postgres/ShipmentDataSource';
 import PostgresStatusActionsDataSource from '../datasources/postgres/StatusActionsDataSource';
 import PostgresSystemDataSource from '../datasources/postgres/SystemDataSource';
+import TagDataSource from '../datasources/postgres/TagDataSource';
 import PostgresTemplateDataSource from '../datasources/postgres/TemplateDataSource';
 import PostgresUnitDataSource from '../datasources/postgres/UnitDataSource';
 import PostgresUserDataSource from '../datasources/postgres/UserDataSource';
@@ -75,6 +78,9 @@ mapClass(
   Tokens.PredefinedMessageDataSource,
   PostgresPredefinedMessageDataSource
 );
+mapClass(Tokens.ReviewMeetingDataSource, PostgresReviewMeetingDataSource);
+mapClass(Tokens.TagDataSource, TagDataSource);
+mapClass(Tokens.SafetyManagementDataSource, SafetyManagementDataSource);
 
 mapClass(Tokens.UserAuthorization, OAuthAuthorization);
 
