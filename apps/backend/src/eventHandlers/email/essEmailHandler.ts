@@ -2,6 +2,7 @@ import { logger } from '@user-office-software/duo-logger';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../../config/Tokens';
+import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
 import { ProposalDataSource } from '../../datasources/ProposalDataSource';
@@ -10,6 +11,7 @@ import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
 import { ProposalEndStatus } from '../../models/Proposal';
+import { SettingsId } from '../../models/Settings';
 import { UserRole } from '../../models/User';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
@@ -28,6 +30,9 @@ export async function essEmailHandler(event: ApplicationEvent) {
   );
   const callDataSource = container.resolve<CallDataSource>(
     Tokens.CallDataSource
+  );
+  const adminDataSource = container.resolve<AdminDataSource>(
+    Tokens.AdminDataSource
   );
 
   if (event.isRejection) {
@@ -262,6 +267,53 @@ export async function essEmailHandler(event: ApplicationEvent) {
             error: err,
             event,
           });
+        });
+
+      return;
+    }
+    case Event.INTERNAL_REVIEW_CREATED: {
+      const internalReview = event.internalreview;
+      const recipient = await userDataSource.getBasicUserInfo(
+        internalReview.reviewerId
+      );
+      const setting = await adminDataSource.getSetting(
+        SettingsId.INTERNAL_REVIEW_NOTIFICATION_EMAIL_TEMPLATE_ID
+      );
+      const templateId = setting?.settingsValue;
+
+      if (!recipient || !templateId) {
+        logger.logError(
+          'Failed email notification on INTERNAL_REVIEW_CREATED',
+          { templateId, recipient, event }
+        );
+
+        return;
+      }
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            // TODO add substitution data
+          },
+          recipients: [{ address: recipient?.email }],
+        })
+        .then((res) => {
+          logger.logInfo('Email sent on INTERNAL_REVIEW_CREATED notify:', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err: string) => {
+          logger.logError(
+            'Could not send email on INTERNAL_REVIEW_CREATED notify:',
+            {
+              error: err,
+              event,
+            }
+          );
         });
 
       return;
