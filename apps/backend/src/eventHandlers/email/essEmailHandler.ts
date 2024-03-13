@@ -5,8 +5,10 @@ import { Tokens } from '../../config/Tokens';
 import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
+import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
 import { ProposalDataSource } from '../../datasources/ProposalDataSource';
 import { RedeemCodesDataSource } from '../../datasources/RedeemCodesDataSource';
+import { ReviewMeetingDataSource } from '../../datasources/ReviewMeetingDataSource';
 import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
@@ -33,6 +35,12 @@ export async function essEmailHandler(event: ApplicationEvent) {
   );
   const adminDataSource = container.resolve<AdminDataSource>(
     Tokens.AdminDataSource
+  );
+  const reviewMeetingDataSource = container.resolve<ReviewMeetingDataSource>(
+    Tokens.ReviewMeetingDataSource
+  );
+  const instrumentDataSource = container.resolve<InstrumentDataSource>(
+    Tokens.InstrumentDataSource
   );
 
   if (event.isRejection) {
@@ -309,6 +317,46 @@ export async function essEmailHandler(event: ApplicationEvent) {
         .catch((err: string) => {
           logger.logError(
             'Could not send email on INTERNAL_REVIEW_CREATED notify:',
+            {
+              error: err,
+              event,
+            }
+          );
+        });
+
+      return;
+    }
+    case Event.REVIEW_MEETING_NOTIFIED: {
+      const reviewMeeting = event.reviewmeeting;
+      const participants = await reviewMeetingDataSource.getParticipants(
+        reviewMeeting.id
+      );
+      const templateId = JSON.parse(event.inputArgs ?? '{}')[0].templateId;
+      const instrument = await instrumentDataSource.getInstrument(
+        reviewMeeting.instrumentId
+      );
+
+      mailService
+        .sendMail({
+          content: {
+            template_id: templateId,
+          },
+          substitution_data: {
+            instrumentName: instrument?.name,
+          },
+          recipients: participants.map((participant) => {
+            return { address: participant.email };
+          }),
+        })
+        .then((res) => {
+          logger.logInfo('Email sent on REVIEW_MEETING_NOTIFIED notify:', {
+            result: res,
+            event,
+          });
+        })
+        .catch((err: string) => {
+          logger.logError(
+            'Could not send email on REVIEW_MEETING_NOTIFIED notify:',
             {
               error: err,
               event,
