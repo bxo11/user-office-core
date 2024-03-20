@@ -25,6 +25,7 @@ WORKDIR /home/node/app
 COPY --from=build-stage --chown=node:node /home/node/app/db_patches ./db_patches
 COPY --from=build-stage --chown=node:node /home/node/app/build ./build
 COPY --from=build-stage --chown=node:node /home/node/app/package*.json ./
+COPY --from=build-stage --chown=node:node /home/node/app/emails ./emails
 
 RUN npm ci --only=production --loglevel error --no-fund
 
