@@ -181,6 +181,10 @@ export abstract class UserAuthorization {
     return readableUsers.includes(id);
   }
 
+  isSampleSafetyReviewer(agent: UserWithRole | null) {
+    return agent?.currentRole?.shortCode === Roles.SAMPLE_SAFETY_REVIEWER;
+  }
+
   abstract externalTokenLogin(
     token: string,
     redirectUri: string,
