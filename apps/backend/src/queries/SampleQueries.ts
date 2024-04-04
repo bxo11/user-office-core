@@ -9,6 +9,7 @@ import { Authorized } from '../decorators';
 import { Roles } from '../models/Role';
 import { Sample } from '../models/Sample';
 import { UserWithRole } from '../models/User';
+import { SamplesByCallIdArgs } from '../resolvers/queries/SamplesByCallIdQuery';
 import { SamplesArgs } from '../resolvers/queries/SamplesQuery';
 
 @injectable()
@@ -43,9 +44,27 @@ export default class SampleQueries {
     return samples;
   }
 
+  @Authorized()
+  async getSamplesWithTotalCount(
+    agent: UserWithRole | null,
+    args: SamplesArgs
+  ) {
+    const { samples, totalCount } =
+      await this.dataSource.getSamplesWithTotalCount(args);
+
+    const filteredSamples = await Promise.all(
+      samples.map((sample) => this.sampleAuth.hasReadRights(agent, sample.id))
+    ).then((results) => samples.filter((_v, index) => results[index]));
+
+    return { samples: filteredSamples, totalCount };
+  }
+
   @Authorized([Roles.USER_OFFICER, Roles.SAMPLE_SAFETY_REVIEWER])
-  async getSamplesByCallId(user: UserWithRole | null, callId: number) {
-    return await this.dataSource.getSamplesByCallId(callId);
+  async getSamplesByCallId(
+    user: UserWithRole | null,
+    args: SamplesByCallIdArgs
+  ) {
+    return await this.dataSource.getSamplesByCallId(args);
   }
 
   async getSamplesByShipmentId(

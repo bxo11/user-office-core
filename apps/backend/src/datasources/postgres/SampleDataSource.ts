@@ -4,6 +4,7 @@ import { injectable } from 'tsyringe';
 
 import { Sample } from '../../models/Sample';
 import { UpdateSampleArgs } from '../../resolvers/mutations/UpdateSampleMutation';
+import { SamplesByCallIdArgs } from '../../resolvers/queries/SamplesByCallIdQuery';
 import { SamplesArgs } from '../../resolvers/queries/SamplesQuery';
 import { SampleDataSource } from '../SampleDataSource';
 import database from './database';
@@ -97,13 +98,29 @@ export default class PostgresSampleDataSource implements SampleDataSource {
       });
   }
 
-  getSamplesByCallId(callId: number): Promise<Sample[]> {
+  getSamplesByCallId(
+    args: SamplesByCallIdArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }> {
     return database('proposals')
+      .modify((query) => {
+        if (args.title) {
+          query.where('samples.title', 'like', `%${args.title}%`);
+        }
+        if (args.offset) {
+          query.offset(args.offset);
+        }
+        if (args.first) {
+          query.limit(args.first);
+        }
+      })
       .join('samples', 'proposals.proposal_pk', 'samples.proposal_pk')
-      .select('samples.*')
-      .where(' proposals.call_id', callId)
+      .select('samples.*', database.raw('count(*) OVER() AS full_count'))
+      .where(' proposals.call_id', args.callId)
       .then((records: SampleRecord[]) => {
-        return records.map((record) => createSampleObject(record)) || [];
+        return {
+          samples: records.map((record) => createSampleObject(record)),
+          totalCount: records[0]?.full_count || 0,
+        };
       });
   }
 
@@ -139,6 +156,54 @@ export default class PostgresSampleDataSource implements SampleDataSource {
       .then((records: SampleRecord[]) =>
         records.map((record) => createSampleObject(record))
       );
+  }
+
+  async getSamplesWithTotalCount(
+    args: SamplesArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }> {
+    const filter = args.filter;
+
+    return database('samples')
+      .modify((query) => {
+        if (filter?.creatorId) {
+          query.where('creator_id', filter.creatorId);
+        }
+        if (filter?.status) {
+          query.where('creator_id', filter.status);
+        }
+        if (filter?.questionaryIds) {
+          query.where('questionary_id', 'in', filter.questionaryIds);
+        }
+        if (filter?.title) {
+          query.where('title', 'like', `%${filter.title}%`);
+        }
+        if (filter?.sampleIds) {
+          query.where('sample_id', 'in', filter.sampleIds);
+        }
+        if (filter?.proposalPk) {
+          query.where('proposal_pk', filter.proposalPk);
+        }
+        if (filter?.questionId) {
+          query.where('question_id', filter.questionId);
+        }
+        if (args.first) {
+          query.limit(args.first);
+        }
+        if (args.offset) {
+          query.offset(args.offset);
+        }
+      })
+      .select('*', database.raw('count(*) OVER() AS full_count'))
+      .orderBy([
+        { column: 'created_at', order: 'asc' },
+        { column: 'sample_id', order: 'asc' },
+      ])
+      .then((records: SampleRecord[]) => {
+        return {
+          samples: records.map((record) => createSampleObject(record)),
+          totalCount: records[0]?.full_count || 0,
+        };
+      });
   }
 
   getSamplesByShipmentId(shipmentId: number): Promise<Sample[]> {

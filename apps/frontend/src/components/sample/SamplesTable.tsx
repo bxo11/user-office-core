@@ -9,6 +9,8 @@ import { DecodedValueMap, SetQuery, QueryParamConfig } from 'use-query-params';
 import { SampleWithProposalData } from 'models/questionary/sample/SampleWithProposalData';
 import { tableIcons } from 'utils/materialIcons';
 
+import { SamplesByCallIdArgs } from './SampleSafetyPage';
+
 const defaultColumns: Column<SampleWithProposalData>[] = [
   { title: 'Title', field: 'title' },
   { title: 'Status', field: 'safetyStatus' },
@@ -24,6 +26,9 @@ const SamplesTable = (
   props: Omit<MaterialTableProps<SampleWithProposalData>, 'columns'> & {
     urlQueryParams: DecodedValueMap<SamplesTableQueryParamsType>;
     setUrlQueryParams: SetQuery<SamplesTableQueryParamsType>;
+    setSampleQueryParams: React.Dispatch<
+      React.SetStateAction<SamplesByCallIdArgs>
+    >;
     columns?: Column<SampleWithProposalData>[];
   }
 ) => (
@@ -40,6 +45,23 @@ const SamplesTable = (
         props.setUrlQueryParams({
           search: searchText ? searchText : undefined,
         });
+        props.setSampleQueryParams((prev) => ({
+          ...prev,
+          title: searchText ? searchText : undefined,
+        }));
+      }}
+      onPageChange={(page, pageSize) => {
+        props.setSampleQueryParams((prev) => ({
+          ...prev,
+          offset: page * pageSize,
+        }));
+      }}
+      onRowsPerPageChange={(pageSize) => {
+        props.setSampleQueryParams((prev) => ({
+          ...prev,
+          first: pageSize,
+          offset: 0,
+        }));
       }}
       options={{
         ...props.options,

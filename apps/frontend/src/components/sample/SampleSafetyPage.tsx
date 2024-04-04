@@ -26,6 +26,13 @@ import useDataApiWithFeedback from 'utils/useDataApiWithFeedback';
 import SampleDetails from './SampleDetails';
 import SamplesTable from './SamplesTable';
 
+export interface SamplesByCallIdArgs {
+  callId: number;
+  title?: string;
+  first: number;
+  offset: number;
+}
+
 function SampleEvaluationDialog(props: {
   sample: SampleWithProposalData;
   onClose: (sample: Maybe<SampleWithProposalData>) => void;
@@ -168,32 +175,50 @@ function SampleSafetyPage() {
     search: StringParam,
   });
 
-  const [selectedCallId, setSelectedCallId] = useState<number>(
-    urlQueryParams.call ? urlQueryParams.call : 0
-  );
+  const [sampleQueryParams, setSampleQueryParams] =
+    useState<SamplesByCallIdArgs>({
+      callId: urlQueryParams.call ? urlQueryParams.call : 0,
+      title: urlQueryParams.search || undefined,
+      first: 10,
+      offset: 0,
+    });
   const [samples, setSamples] = useState<SampleWithProposalData[]>([]);
   const [selectedSample, setSelectedSample] =
     useState<SampleWithProposalData | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
-    if (selectedCallId === null) {
+    if (sampleQueryParams === null) {
       return;
     }
 
-    if (selectedCallId === 0) {
+    if (sampleQueryParams.callId === 0) {
       api()
-        .getSamplesWithProposalData()
+        .getSamplesWithTotalCount({
+          filter: {
+            title: sampleQueryParams.title,
+          },
+          first: sampleQueryParams.first,
+          offset: sampleQueryParams.offset,
+        })
         .then((result) => {
-          setSamples(result.samples || []);
+          setSamples(result.samplesWithTotalCount?.samples || []);
+          setTotalCount(result.samplesWithTotalCount?.totalCount || 0);
         });
     } else {
       api()
-        .getSamplesByCallId({ callId: selectedCallId })
+        .getSamplesByCallId({
+          callId: sampleQueryParams.callId,
+          title: sampleQueryParams.title,
+          first: sampleQueryParams.first,
+          offset: sampleQueryParams.offset,
+        })
         .then((result) => {
-          setSamples(result.samplesByCallId || []);
+          setSamples(result.samplesByCallId?.samples || []);
+          setTotalCount(result.samplesByCallId?.totalCount || 0);
         });
     }
-  }, [api, selectedCallId]);
+  }, [api, sampleQueryParams]);
 
   const downloadPDFSample = useDownloadPDFSample();
   const RowActionButtons = (rowData: SampleWithProposalData) => (
@@ -219,6 +244,10 @@ function SampleSafetyPage() {
     rowActions: RowActionButtons(sample),
   }));
 
+  const currentPage = (sampleQueryParams.offset as number)
+    ? (sampleQueryParams.offset as number) / (sampleQueryParams.first as number)
+    : 0;
+
   return (
     <>
       {selectedSample && (
@@ -241,11 +270,14 @@ function SampleSafetyPage() {
           <Grid container spacing={2}>
             <Grid item sm={3} xs={12}>
               <CallFilter
-                callId={selectedCallId}
+                callId={sampleQueryParams.callId}
                 calls={calls}
                 isLoading={loadingCalls}
                 onChange={(callId) => {
-                  setSelectedCallId(callId);
+                  setSampleQueryParams((prev) => ({
+                    ...prev,
+                    callId,
+                  }));
                 }}
                 shouldShowAll={true}
               />
@@ -253,15 +285,20 @@ function SampleSafetyPage() {
           </Grid>
           <SamplesTable
             data={samplesWithRowActions}
+            totalCount={totalCount}
+            page={currentPage}
             isLoading={isExecutingCall}
             urlQueryParams={urlQueryParams}
             setUrlQueryParams={setUrlQueryParams}
+            setSampleQueryParams={setSampleQueryParams}
             columns={columns}
             options={{
               selection: true,
               headerSelectionProps: {
                 inputProps: { 'aria-label': 'Select All Rows' },
               },
+              pageSize: sampleQueryParams.first,
+              debounceInterval: 400,
             }}
             actions={[
               {

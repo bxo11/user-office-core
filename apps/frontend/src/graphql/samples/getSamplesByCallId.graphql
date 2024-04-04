@@ -1,9 +1,22 @@
-query getSamplesByCallId($callId: Int!) {
-  samplesByCallId(callId: $callId) {
-    ...sample
-    proposal {
-      primaryKey
-      proposalId
+query getSamplesByCallId(
+  $callId: Int!
+  $title: String
+  $first: Int
+  $offset: Int
+) {
+  samplesByCallId(
+    callId: $callId
+    title: $title
+    first: $first
+    offset: $offset
+  ) {
+    samples {
+      ...sample
+      proposal {
+        primaryKey
+        proposalId
+      }
     }
+    totalCount
   }
 }
