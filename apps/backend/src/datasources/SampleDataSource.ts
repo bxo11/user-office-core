@@ -1,5 +1,6 @@
 import { Sample } from '../models/Sample';
 import { UpdateSampleArgs } from '../resolvers/mutations/UpdateSampleMutation';
+import { SamplesByCallIdArgs } from '../resolvers/queries/SamplesByCallIdQuery';
 import { SamplesArgs } from '../resolvers/queries/SamplesQuery';
 
 export interface SampleDataSource {
@@ -14,7 +15,12 @@ export interface SampleDataSource {
   ): Promise<Sample>;
   getSample(sampleId: number): Promise<Sample | null>;
   getSamples(args: SamplesArgs): Promise<Sample[]>;
-  getSamplesByCallId(callId: number): Promise<Sample[]>;
+  getSamplesWithTotalCount(
+    args: SamplesArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }>;
+  getSamplesByCallId(
+    args: SamplesByCallIdArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }>;
   getSamplesByShipmentId(shipmentId: number): Promise<Sample[]>;
   getSamplesByEsiId(esiId: number): Promise<Sample[]>;
 }

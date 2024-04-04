@@ -1,5 +1,6 @@
 import { Sample, SampleStatus } from '../../models/Sample';
 import { UpdateSampleArgs } from '../../resolvers/mutations/UpdateSampleMutation';
+import { SamplesByCallIdArgs } from '../../resolvers/queries/SamplesByCallIdQuery';
 import { SamplesArgs } from '../../resolvers/queries/SamplesQuery';
 import { SampleDataSource } from '../SampleDataSource';
 
@@ -34,8 +35,16 @@ export class SampleDataSourceMock implements SampleDataSource {
     return this.samples;
   }
 
-  async getSamplesByCallId(_callId: number): Promise<Sample[]> {
-    return this.samples;
+  async getSamplesWithTotalCount(
+    args: SamplesArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }> {
+    return { samples: this.samples, totalCount: this.samples.length };
+  }
+
+  async getSamplesByCallId(
+    args: SamplesByCallIdArgs
+  ): Promise<{ samples: Sample[]; totalCount: number }> {
+    return { samples: this.samples, totalCount: this.samples.length };
   }
   async create(
     title: string,

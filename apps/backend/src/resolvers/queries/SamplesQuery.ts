@@ -5,6 +5,7 @@ import {
   Field,
   InputType,
   Int,
+  ObjectType,
   Query,
   Resolver,
 } from 'type-graphql';
@@ -44,12 +45,38 @@ class SamplesFilter {
 export class SamplesArgs {
   @Field(() => SamplesFilter, { nullable: true })
   public filter?: SamplesFilter;
+
+  @Field(() => Int, { nullable: true })
+  public first?: number;
+
+  @Field(() => Int, { nullable: true })
+  public offset?: number;
 }
+
+@ObjectType()
+export class SamplesQueryResult {
+  @Field(() => Int)
+  public totalCount: number;
+
+  @Field(() => [Sample])
+  public samples: Sample[];
+}
+
 @Resolver()
 export class SamplesQuery {
   @Query(() => [Sample], { nullable: true })
   async samples(@Ctx() context: ResolverContext, @Args() args: SamplesArgs) {
-    const response = await context.queries.sample.getSamples(
+    const samples = await context.queries.sample.getSamples(context.user, args);
+
+    return samples;
+  }
+
+  @Query(() => SamplesQueryResult, { nullable: true })
+  async samplesWithTotalCount(
+    @Ctx() context: ResolverContext,
+    @Args() args: SamplesArgs
+  ) {
+    const response = await context.queries.sample.getSamplesWithTotalCount(
       context.user,
       args
     );

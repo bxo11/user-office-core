@@ -1,0 +1,16 @@
+query getSamplesWithTotalCount(
+  $filter: SamplesFilter
+  $first: Int
+  $offset: Int
+) {
+  samplesWithTotalCount(filter: $filter, first: $first, offset: $offset) {
+    samples {
+      ...sample
+      proposal {
+        primaryKey
+        proposalId
+      }
+    }
+    totalCount
+  }
+}

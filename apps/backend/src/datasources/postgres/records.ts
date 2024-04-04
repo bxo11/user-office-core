@@ -493,6 +493,7 @@ export interface SampleRecord {
   readonly sample_id: number;
   readonly shipment_id: number;
   readonly title: string;
+  readonly full_count: number;
 }
 
 export interface ShipmentRecord {
