@@ -279,11 +279,7 @@ const SafetyManagement = ({ proposalPk }: SafetyManagementProps) => {
               <Grid item xs={12}>
                 <Box sx={{ '& button': { m: 1 } }}>
                   <StyledButtonContainer>
-                    <Button
-                      onClick={() =>
-                        history.push(`/Esra/${safetyManagement?.proposalPk}`)
-                      }
-                    >
+                    <Button onClick={() => history.push(`/Esra/${proposalPk}`)}>
                       Go to ESRA form
                     </Button>
                     <Button
