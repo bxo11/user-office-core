@@ -153,7 +153,7 @@ export default class ProposalSettingsQueries {
     return statusAction;
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getStatusActions(agent: UserWithRole | null) {
     const statusActions = await this.statusActionsDataSource.getStatusActions();
 
@@ -171,7 +171,7 @@ export default class ProposalSettingsQueries {
     );
   }
 
-  @Authorized([Roles.USER_OFFICER])
+  @Authorized([Roles.USER_OFFICER, Roles.SAFETY_MANAGER])
   async getStatusActionConfig(
     agent: UserWithRole | null,
     statusAction: ProposalStatusAction
