@@ -262,6 +262,7 @@ export class ProposalAuthorization {
 
     if (
       this.userAuth.isUserOfficer(agent) ||
+      this.userAuth.isSampleSafetyReviewer(agent) ||
       this.userAuth.hasGetAccessByToken(agent)
     ) {
       return true;
