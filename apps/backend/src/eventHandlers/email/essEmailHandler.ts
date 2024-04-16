@@ -335,10 +335,13 @@ export async function essEmailHandler(event: ApplicationEvent) {
       const respomsibleSafetyManagers =
         await safetyManagementDataSource.getResponsibleUsers(id);
       const proposal = await proposalDataSource.get(proposalPk);
+      const proposer = await userDataSource.getUser(proposal?.proposerId ?? 0);
 
-      if (respomsibleSafetyManagers.length === 0 || !proposal) {
+      if (!proposal || !proposer) {
         return;
       }
+
+      const [{ esraForm }] = JSON.parse(event.inputArgs || '{}');
 
       mailService
         .sendMail({
@@ -348,8 +351,10 @@ export async function essEmailHandler(event: ApplicationEvent) {
           substitution_data: {
             proposalNumber: proposal.proposalId,
             proposalTitle: proposal.title,
+            ...esraForm,
           },
           recipients: [
+            { address: proposer.email },
             ...respomsibleSafetyManagers.map((partipant) => {
               return {
                 address: partipant.email,
