@@ -1,6 +1,7 @@
 import { container, inject, injectable } from 'tsyringe';
 
 import { ProposalAuthorization } from '../auth/ProposalAuthorization';
+import { UserAuthorization } from '../auth/UserAuthorization';
 import { Tokens } from '../config/Tokens';
 import { SafetyManagementDataSource } from '../datasources/SafetyManagementDataSource';
 import { Authorized, EventBus } from '../decorators';
@@ -19,6 +20,7 @@ export default class SafetyManagementMutations {
   private proposalAuth = container.resolve(ProposalAuthorization);
 
   constructor(
+    @inject(Tokens.UserAuthorization) private userAuth: UserAuthorization,
     @inject(Tokens.SafetyManagementDataSource)
     private dataSource: SafetyManagementDataSource
   ) {}
@@ -107,10 +109,14 @@ export default class SafetyManagementMutations {
     }
 
     if (
-      !(await this.proposalAuth.isMemberOfProposal(
-        agent,
-        safetyManagement.proposalPk
-      ))
+      !(
+        (await this.proposalAuth.isMemberOfProposal(
+          agent,
+          safetyManagement.proposalPk
+        )) ||
+        (await this.userAuth.isUserOfficer(agent)) ||
+        (await this.userAuth.isSafetyManager(agent))
+      )
     ) {
       return rejection('User do not have access to request ESRA', {
         agent,
@@ -118,11 +124,8 @@ export default class SafetyManagementMutations {
       });
     }
 
-    if (
-      safetyManagement.esraRequested ||
-      safetyManagement.esraStatus !== null
-    ) {
-      return rejection('ESRA is already requested or status is already set', {
+    if (safetyManagement.esraStatus === EsraStatus.ESRA_REQUESTED) {
+      return rejection('ESRA is already requested', {
         agent,
         args,
       });

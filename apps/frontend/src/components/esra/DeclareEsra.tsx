@@ -43,19 +43,19 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
     hazardousEquipment: false,
     ownEquipment: false,
     ownEquipmentNotes: '',
-    nanoSamples: false,
-    samples: false,
-    cmrCompound: false,
-    biologicalSamples: false,
+    nanoSamplesDeclaration: false,
+    samplesDeclaration: false,
+    classedAsCmrCompound: false,
+    biologicalSamplesDeclaration: false,
     samplesRemoval: '',
     labAccess: '',
   };
 
-  const handleEsraRequest = async (): Promise<void> => {
+  const handleEsraRequest = async (values: any): Promise<void> => {
     if (safetyManagementId) {
       await api({
         toastSuccessMessage: 'Esra requested successfully!',
-      }).requestEsra({ safetyManagementId });
+      }).requestEsra({ safetyManagementId, esraForm: values });
     }
   };
 
@@ -66,7 +66,9 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
       </Typography>
       <Formik
         initialValues={initialValues}
-        onSubmit={async (values): Promise<void> => {}}
+        onSubmit={async (values): Promise<void> => {
+          handleEsraRequest(values);
+        }}
       >
         {({ isSubmitting, setFieldValue, values }) => (
           <Form>
@@ -162,14 +164,17 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                 <FormControlLabel
                   control={
                     <Field
-                      id="nanoSamples"
-                      name="nanoSamples"
+                      id="nanoSamplesDeclaration"
+                      name="nanoSamplesDeclaration"
                       component={Checkbox}
                       type="checkbox"
                       inputProps={{ 'aria-label': 'primary checkbox' }}
-                      checked={values.nanoSamples}
+                      checked={values.nanoSamplesDeclaration}
                       onChange={() => {
-                        setFieldValue('nanoSamples', !values.nanoSamples);
+                        setFieldValue(
+                          'nanoSamplesDeclaration',
+                          !values.nanoSamplesDeclaration
+                        );
                       }}
                     />
                   }
@@ -181,14 +186,17 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                 <FormControlLabel
                   control={
                     <Field
-                      id="samples"
-                      name="samples"
+                      id="samplesDeclaration"
+                      name="samplesDeclaration"
                       component={Checkbox}
                       type="checkbox"
                       inputProps={{ 'aria-label': 'primary checkbox' }}
-                      checked={values.samples}
+                      checked={values.samplesDeclaration}
                       onChange={() => {
-                        setFieldValue('samples', !values.samples);
+                        setFieldValue(
+                          'samplesDeclaration',
+                          !values.samplesDeclaration
+                        );
                       }}
                     />
                   }
@@ -199,14 +207,17 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                 <FormControlLabel
                   control={
                     <Field
-                      id="cmrCompound"
-                      name="cmrCompound"
+                      id="classedAsCmrCompound"
+                      name="classedAsCmrCompound"
                       component={Checkbox}
                       type="checkbox"
                       inputProps={{ 'aria-label': 'primary checkbox' }}
-                      checked={values.cmrCompound}
+                      checked={values.classedAsCmrCompound}
                       onChange={() => {
-                        setFieldValue('cmrCompound', !values.cmrCompound);
+                        setFieldValue(
+                          'classedAsCmrCompound',
+                          !values.classedAsCmrCompound
+                        );
                       }}
                     />
                   }
@@ -217,16 +228,16 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                 <FormControlLabel
                   control={
                     <Field
-                      id="biologicalSamples"
-                      name="biologicalSamples"
+                      id="biologicalSamplesDeclaration"
+                      name="biologicalSamplesDeclaration"
                       component={Checkbox}
                       type="checkbox"
                       inputProps={{ 'aria-label': 'primary checkbox' }}
-                      checked={values.biologicalSamples}
+                      checked={values.biologicalSamplesDeclaration}
                       onChange={() => {
                         setFieldValue(
-                          'biologicalSamples',
-                          !values.biologicalSamples
+                          'biologicalSamplesDeclaration',
+                          !values.biologicalSamplesDeclaration
                         );
                       }}
                     />
@@ -244,6 +255,7 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                   <InputLabel
                     htmlFor="samplesRemoval"
                     shrink={!!values.samplesRemoval}
+                    required
                   >
                     Samples will be removed by
                   </InputLabel>
@@ -251,11 +263,12 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
                     name="samplesRemoval"
                     component={Select}
                     disabled={isSubmitting}
+                    required
                   >
-                    <MenuItem value={1} key={1}>
+                    <MenuItem value={'maxiv'} key={1}>
                       MAX IV
                     </MenuItem>
-                    <MenuItem value={2} key={2}>
+                    <MenuItem value={'user'} key={2}>
                       The user
                     </MenuItem>
                   </Field>
@@ -268,18 +281,23 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
               </Grid>
               <Grid item sm={6}>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel htmlFor="labAccess" shrink={!!values.labAccess}>
+                  <InputLabel
+                    htmlFor="labAccess"
+                    shrink={!!values.labAccess}
+                    required
+                  >
                     I will require access to a Chemical or Biology laboratory
                   </InputLabel>
                   <Field
                     name="labAccess"
                     component={Select}
                     disabled={isSubmitting}
+                    required
                   >
-                    <MenuItem value={1} key={1}>
+                    <MenuItem value={'no'} key={1}>
                       No
                     </MenuItem>
-                    <MenuItem value={2} key={2}>
+                    <MenuItem value={'yes'} key={2}>
                       Yes
                     </MenuItem>
                   </Field>
@@ -288,15 +306,8 @@ function DeclareEsra({ proposalPk }: DeclareEsraProps) {
               <Grid item xs={12}>
                 <Box sx={{ '& button': { m: 1 } }}>
                   <StyledButtonContainer>
-                    <Button onClick={handleEsraRequest} disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting}>
                       Request ESRA
-                    </Button>
-                    <Button
-                      type="submit"
-                      data-cy="save-safety-management-decision"
-                      disabled={isSubmitting}
-                    >
-                      Save
                     </Button>
                   </StyledButtonContainer>
                 </Box>
